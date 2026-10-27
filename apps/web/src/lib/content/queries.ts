@@ -4,7 +4,7 @@
  */
 
 export const SITE_QUERY = /* groq */ `*[_type == "site" && slug.current == $slug][0]{
-  _id, name, "slug": slug.current, url, lang, seo, analytics, logo, theme, catalogLabel,
+  _id, name, "slug": slug.current, url, lang, seo, analytics, allowAiCrawlers, logo, theme, catalogLabel,
   header, footer{..., "legalPath": legalPage->path},
   redirects,
   "scripts": scripts[]{src, attributes[]{name, value}},
@@ -52,6 +52,7 @@ export interface RawSite {
   url: string;
   lang?: string;
   seo?: { title?: string; description?: string; ogImage?: SanityImage };
+  allowAiCrawlers?: boolean;
   analytics?: { gtmId?: string; ga4Id?: string; loading?: "interaction" | "immediate"; maxDelay?: number };
   logo: { label: string; image?: SanityImage; wordmark?: { text: string; accent?: boolean }[]; mark?: "none" | "rings" };
   theme: Record<string, string>;
@@ -82,7 +83,7 @@ export interface RawPage {
   _id: string;
   title: string;
   path: string;
-  seo?: { title?: string; description?: string; ogImage?: SanityImage };
+  seo?: { title?: string; description?: string; ogImage?: SanityImage; noIndex?: boolean };
   header?: "full" | "compact" | "minimal";
   footer?: "full" | "minimal";
   sections?: RawSection[];

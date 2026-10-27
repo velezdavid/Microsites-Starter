@@ -4,7 +4,7 @@ import type { AnalyticsConfig, Block, ExternalScript, FooterConfig, HeaderConfig
 export interface PageDefinition {
   /** Path without leading slash; "" is the home page. May contain spaces (kept for URL compatibility). */
   path: string;
-  seo: { title: string; description?: string; image?: string };
+  seo: { title: string; description?: string; image?: string; noIndex: boolean };
   header: HeaderConfig;
   footer: FooterConfig;
   blocks: Block[];
@@ -28,6 +28,8 @@ export interface SiteDefinition {
   logo: LogoConfig;
   analytics: AnalyticsConfig;
   scripts: ExternalScript[];
+  /** Whether AI crawlers (GPTBot, ClaudeBot…) may read the site (robots.txt). */
+  allowAiCrawlers: boolean;
   pages: PageDefinition[];
   /** Emitted to Netlify `_redirects` in this order. */
   redirects: Redirect[];

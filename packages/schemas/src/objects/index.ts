@@ -52,9 +52,16 @@ export const seo = defineType({
   title: "SEO",
   type: "object",
   fields: [
-    defineField({ name: "title", title: "Título", type: "string", validation: (rule) => rule.max(70).warning("Ideal: máximo 70 caracteres") }),
-    defineField({ name: "description", title: "Descripción", type: "text", rows: 3, validation: (rule) => rule.max(170).warning("Ideal: máximo 170 caracteres") }),
-    defineField({ name: "ogImage", title: "Imagen para redes", type: "image", description: "1200×630 px recomendado." }),
+    defineField({ name: "title", title: "Título", type: "string", validation: (rule) => rule.max(60).warning("Ideal: máximo 60 caracteres") }),
+    defineField({ name: "description", title: "Descripción", type: "text", rows: 3, validation: (rule) => rule.max(160).warning("Ideal: entre 140 y 160 caracteres") }),
+    defineField({ name: "ogImage", title: "Imagen para redes", type: "image", description: "1200×630 px recomendado.", options: { hotspot: true } }),
+    defineField({
+      name: "noIndex",
+      title: "Ocultar de buscadores (noindex)",
+      type: "boolean",
+      description: "La página sigue publicada, pero los buscadores no la indexan y sale del sitemap.",
+      initialValue: false,
+    }),
   ],
 });
 

@@ -11,13 +11,36 @@ interface Props {
   theme: Theme;
   analytics?: AnalyticsConfig;
   scripts?: ExternalScript[];
+  /** Absolute URL of this page (canonical and og:url). */
   canonical?: string;
   /** Absolute URL of the social sharing image. */
   image?: string;
+  siteName?: string;
+  /** Hide the page from search engines. */
+  noIndex?: boolean;
+  /** Schema.org structured data, rendered as JSON-LD. */
+  jsonLd?: object;
   skipLabel?: string;
 }
 
-const { title, description, lang = "es", theme, analytics, scripts = [], canonical, image, skipLabel = "Saltar al contenido" } = Astro.props;
+const {
+  title,
+  description,
+  lang = "es",
+  theme,
+  analytics,
+  scripts = [],
+  canonical,
+  image,
+  siteName,
+  noIndex = false,
+  jsonLd,
+  skipLabel = "Saltar al contenido",
+} = Astro.props;
+
+const robots = noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large";
+// Escape "<" so content can never close the script tag.
+const jsonLdText = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : undefined;
 ---
 
 <!doctype html>
@@ -29,10 +52,23 @@ const { title, description, lang = "es", theme, analytics, scripts = [], canonic
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {description && <meta name="description" content={description} />}
     {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="robots" content={robots} />
+
+    {siteName && <meta property="og:site_name" content={siteName} />}
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
+    {canonical && <meta property="og:url" content={canonical} />}
     {image && <meta property="og:image" content={image} />}
+    {image && <meta property="og:image:width" content="1200" />}
+    {image && <meta property="og:image:height" content="630" />}
+
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    {image && <meta name="twitter:image" content={image} />}
+
+    {jsonLdText && <script type="application/ld+json" set:html={jsonLdText} />}
     <ThirdPartyScripts analytics={analytics} scripts={scripts} position="head" />
     <slot name="head" />
   </head>

@@ -2,6 +2,7 @@
 import { BaseLayout, BlockRenderer, SiteFooter, SiteHeader } from "@microsites/ui";
 import "../styles/fonts.css";
 import { fontPreloads } from "../styles/fonts";
+import { structuredData } from "../lib/content/structured-data";
 import type { PageDefinition, SiteDefinition } from "../lib/content/types";
 import { pageHref } from "../lib/content/types";
 
@@ -22,6 +23,9 @@ const { site, page } = Astro.props;
   analytics={site.analytics}
   scripts={site.scripts}
   canonical={new URL(pageHref(page.path), site.url).href}
+  siteName={site.name}
+  noIndex={page.seo.noIndex}
+  jsonLd={structuredData(site, page)}
 >
   <Fragment slot="head">
     {fontPreloads(site.theme).map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}

@@ -26,6 +26,15 @@ export const site = defineType({
     defineField({ name: "lang", title: "Idioma", type: "string", initialValue: "es", group: "general" }),
     defineField({ name: "seo", title: "SEO por defecto", type: "seo", group: "general" }),
     defineField({
+      name: "allowAiCrawlers",
+      title: "Permitir rastreadores de IA",
+      type: "boolean",
+      description:
+        "GPTBot, ClaudeBot, PerplexityBot, Google-Extended… Activado: pueden leer el sitio (aparecer en respuestas de IA). Desactivado: se bloquean en robots.txt. Vacío = permitido.",
+      initialValue: true,
+      group: "general",
+    }),
+    defineField({
       name: "analytics",
       title: "Analítica",
       type: "object",
