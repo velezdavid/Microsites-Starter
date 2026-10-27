@@ -1,0 +1,107 @@
+---
+import type { VariantCardsBlock } from "../../types";
+import { pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: VariantCardsBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, title, note, cards } = block;
+---
+
+<Section {...block}>
+  <SectionHeading eyebrow={eyebrow} title={title} size="md" titleMaxWidth="760px" />
+  {note && <p class="vc__note">{note}</p>}
+  <div class="vc__grid">
+    {
+      cards.map((c, i) => (
+        <div class:list={["vc__card", { "vc__card--on": c.highlight }]}>
+          <span class="vc__badge">{c.badge ?? pad2(i + 1)}</span>
+          <span class="vc__title">{c.title}</span>
+          <span class="vc__text">{c.text}</span>
+          {/* Always rendered (even empty) so every card keeps the same bottom spacing. */}
+          <div class="vc__rows">
+            {(c.rows ?? []).map(([k, v]) => (
+              <div class="vc__row">
+                <span class="vc__key">{k}</span>
+                <span class="vc__val">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .vc__note {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-muted);
+    margin: 14px 0 0;
+    max-width: 640px;
+  }
+  .vc__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 12px;
+    margin-top: clamp(24px, 4vw, 40px);
+  }
+  .vc__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: clamp(20px, 3vw, 28px);
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--color-line);
+    min-width: 0;
+  }
+  .vc__card--on {
+    border-color: var(--color-accent);
+  }
+  .vc__badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--color-accent);
+  }
+  .vc__title {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2.6vw, 24px);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .vc__text {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+  .vc__rows {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+  .vc__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .vc__key {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .vc__val {
+    font-size: 15px;
+    text-align: right;
+  }
+</style>

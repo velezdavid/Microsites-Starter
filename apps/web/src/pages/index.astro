@@ -1,0 +1,10 @@
+---
+import SitePage from "../components/SitePage.astro";
+import { getSite } from "../lib/content/site";
+
+const site = await getSite();
+const page = site.pages.find((p) => p.path === "");
+if (!page) throw new Error(`Site "${site.slug}" has no home page (a page with an empty path).`);
+---
+
+<SitePage site={site} page={page} />

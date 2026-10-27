@@ -1,0 +1,124 @@
+---
+import type { SpecTableBlock } from "../../types";
+import { pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+
+interface Props {
+  block: SpecTableBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, title, rows, notes = [], tips } = block;
+---
+
+<Section {...block}>
+  <div class="ui-split">
+    <div class="st__main">
+      {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+      {title && <h2 class="ui-h2 ui-h2--md st__title">{title}</h2>}
+      <dl class="st__table">
+        {
+          rows.map(([k, v]) => (
+            <div class="st__row">
+              <dt class="st__key">{k}</dt>
+              <dd class="st__val">{v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      {/* Always rendered (even empty) to keep the table's bottom spacing consistent. */}
+      <div class="st__notes">
+        {notes.map((n) => <p>{n}</p>)}
+      </div>
+    </div>
+    {
+      tips && tips.items.length > 0 && (
+        <div class="st__tips">
+          <div class="ui-label st__tips-label">{tips.label}</div>
+          <div class="st__tips-list">
+            {tips.items.map((t, i) => (
+              <div class="st__tip">
+                <span class="ui-num">{pad2(i + 1)}</span>
+                <span class="st__tip-text">{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </div>
+</Section>
+
+<style>
+  .st__main {
+    flex: 1.2 1 400px;
+    min-width: 0;
+  }
+  .st__title {
+    text-wrap: wrap;
+  }
+  .st__table {
+    margin: clamp(24px, 4vw, 36px) 0 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .st__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .st__key {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .st__val {
+    margin: 0;
+    font-size: 16px;
+    text-align: right;
+  }
+  .st__notes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .st__notes p {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-muted);
+    margin: 0;
+  }
+  .st__tips {
+    flex: 1 1 320px;
+    min-width: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 32px);
+  }
+  .st__tips-label {
+    color: var(--color-accent);
+  }
+  .st__tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 20px;
+  }
+  .st__tip {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .st__tip .ui-num {
+    flex: 0 0 auto;
+  }
+  .st__tip-text {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+</style>

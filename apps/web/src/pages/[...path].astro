@@ -1,0 +1,15 @@
+---
+import type { GetStaticPaths } from "astro";
+import SitePage from "../components/SitePage.astro";
+import { getSite } from "../lib/content/site";
+
+export const getStaticPaths = (async () => {
+  const site = await getSite();
+  return site.pages.filter((p) => p.path !== "").map((page) => ({ params: { path: page.path }, props: { page } }));
+}) satisfies GetStaticPaths;
+
+const site = await getSite();
+const { page } = Astro.props;
+---
+
+<SitePage site={site} page={page} />

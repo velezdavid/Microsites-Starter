@@ -1,0 +1,11 @@
+# Build settings for every microsite Netlify site (one site per SITE_SLUG).
+# Set SITE_SLUG and the PUBLIC_SANITY_* variables in each Netlify site's environment.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Hashed assets never change: cache them for a year.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

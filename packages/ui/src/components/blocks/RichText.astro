@@ -1,0 +1,79 @@
+---
+import type { RichTextBlock } from "../../types";
+
+interface Props {
+  block: RichTextBlock;
+}
+
+const { block } = Astro.props;
+const { anchor, eyebrow, title, meta, sections } = block;
+---
+
+<article id={anchor} class="rt">
+  {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+  <h1 class="rt__title">{title}</h1>
+  {meta && <div class="rt__meta">{meta}</div>}
+  <div class="rt__body">
+    {
+      sections.map((s) => (
+        <section class="rt__section">
+          <h2 class="rt__heading">{s.title}</h2>
+          <div class="rt__content" set:html={s.html} />
+        </section>
+      ))
+    }
+  </div>
+</article>
+
+<style>
+  .rt {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(48px, 8vw, 96px) clamp(16px, 4vw, 40px);
+  }
+  .rt__title {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 6vw, 56px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 14px 0 0;
+  }
+  .rt__meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--color-dim);
+    margin-top: 18px;
+  }
+  .rt__body {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: clamp(36px, 6vw, 56px);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+  .rt__section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rt__heading {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+  .rt__content :global(p) {
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .rt__content :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

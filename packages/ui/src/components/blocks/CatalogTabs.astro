@@ -1,0 +1,219 @@
+---
+import type { CatalogTabsBlock } from "../../types";
+import { actionAttrs, pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: CatalogTabsBlock;
+}
+
+const { block } = Astro.props;
+const { id, eyebrow, title, intro, ariaLabel, tabs } = block;
+---
+
+<Section {...block}>
+  <SectionHeading eyebrow={eyebrow} title={title} intro={intro} />
+  <div class="ct" data-tabs={id}>
+    <div class="ct__tabs" role="tablist" aria-label={ariaLabel} aria-orientation="vertical">
+      {
+        tabs.map((t, i) => (
+          <button
+            type="button"
+            role="tab"
+            class="ct__tab"
+            id={`${id}-tab-${t.id}`}
+            aria-controls={`${id}-panel-${t.id}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+            data-tab={t.id}
+          >
+            <span class="ct__num">{pad2(i + 1)}</span>
+            <span class="ct__tab-text">
+              <span class="ct__tab-label">{t.label}</span>
+              {t.meta && <span class="ct__tab-meta">{t.meta}</span>}
+            </span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      tabs.map((t, i) => (
+        <div
+          class="ct__panel"
+          role="tabpanel"
+          id={`${id}-panel-${t.id}`}
+          aria-labelledby={`${id}-tab-${t.id}`}
+          data-tab-content={t.id}
+          hidden={i > 0}
+        >
+          <div>
+            <h3 class="ct__headline">{t.headline}</h3>
+            <p class="ct__text">{t.text}</p>
+          </div>
+          {t.chips && t.chips.length > 0 && (
+            <div>
+              <div class="ui-label">{t.chipsLabel}</div>
+              <div class="ui-chips ct__chips">
+                {t.chips.map((c) => (
+                  <span class="ui-chip">{c}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {t.cards && t.cards.length > 0 && (
+            <div>
+              <div class="ui-label">{t.cardsLabel}</div>
+              <div class="ct__cards">
+                {t.cards.map((c) => (
+                  <a class="ct__card" href={c.href} {...actionAttrs(c.action)}>
+                    {c.eyebrow && <span class="ct__card-eyebrow">{c.eyebrow}</span>}
+                    <span class="ct__card-title">{c.title}</span>
+                    <span class="ct__card-link">{c.linkLabel} →</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {t.cta && (
+            <a class="ui-btn ui-btn--primary ct__cta" href={t.cta.href} {...actionAttrs(t.cta.action)}>
+              {t.cta.label} →
+            </a>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .ct {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(20px, 4vw, 40px);
+    margin-top: clamp(28px, 5vw, 48px);
+  }
+  .ct__tabs {
+    flex: 1 1 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .ct__tab {
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(14px, 2.5vw, 20px) clamp(16px, 2.5vw, 22px);
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-text);
+    transition:
+      background 0.12s,
+      border-color 0.12s;
+  }
+  .ct__tab[aria-selected="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-surface);
+  }
+  .ct__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-dim);
+  }
+  .ct__tab[aria-selected="true"] .ct__num {
+    color: var(--color-accent);
+  }
+  .ct__tab-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .ct__tab-label {
+    font-family: var(--font-display);
+    font-size: clamp(17px, 2.4vw, 21px);
+    font-weight: 600;
+  }
+  .ct__tab-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+  }
+  .ct__panel {
+    flex: 999 1 460px;
+    min-width: 0;
+    background: linear-gradient(160deg, var(--color-surface), var(--color-surface-end));
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .ct__headline {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3.6vw, 34px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .ct__text {
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.55;
+    color: var(--color-muted);
+    margin: 14px 0 0;
+    max-width: 620px;
+  }
+  .ct__chips {
+    margin-top: 12px;
+  }
+  .ct__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .ct__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-line);
+    transition: border-color 0.12s;
+  }
+  .ct__card:hover {
+    border-color: var(--color-accent);
+  }
+  .ct__card-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+  }
+  .ct__card-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .ct__card-link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+    margin-top: auto;
+  }
+  .ct__cta {
+    align-self: flex-start;
+    font-size: 14px;
+    padding: 0 22px;
+  }
+</style>

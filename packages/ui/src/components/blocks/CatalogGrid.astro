@@ -1,0 +1,118 @@
+---
+import type { CatalogGridBlock } from "../../types";
+import { actionAttrs, pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: CatalogGridBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, title, items } = block;
+---
+
+<Section {...block}>
+  <SectionHeading eyebrow={eyebrow} title={title} />
+  <div class="cgr">
+    {
+      items.map((it, i) => (
+        <div class="cgr__cell">
+          <span class="ui-num">{pad2(i + 1)}</span>
+          <span class="cgr__stat">{it.stat}</span>
+          <span class="cgr__stat-label">{it.statLabel}</span>
+          <span class="cgr__title">{it.title}</span>
+          <span class="cgr__text">{it.text}</span>
+          <div class="cgr__links">
+            <a class="cgr__primary" href={it.primary.href} {...actionAttrs(it.primary.action)}>
+              {it.primary.label} →
+            </a>
+            {it.secondary && (
+              <a class="cgr__secondary" href={it.secondary.href} {...actionAttrs(it.secondary.action)}>
+                {it.secondary.label} ↓
+              </a>
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .cgr {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+    margin-top: clamp(28px, 5vw, 48px);
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+  .cgr__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(20px, 3vw, 28px);
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    min-width: 0;
+    transition: background 0.12s;
+  }
+  .cgr__cell:hover {
+    background: var(--color-surface);
+  }
+  .cgr__stat {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4.5vw, 44px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-accent);
+    line-height: 1;
+  }
+  .cgr__stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+  }
+  .cgr__title {
+    font-family: var(--font-display);
+    font-size: clamp(19px, 2.4vw, 22px);
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .cgr__text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+  .cgr__links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  .cgr__primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 6px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: background 0.12s;
+  }
+  .cgr__primary:hover {
+    background: var(--color-accent-hover);
+  }
+  .cgr__secondary {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+import { BaseLayout, BlockRenderer, SiteFooter, SiteHeader } from "@microsites/ui";
+import "../styles/fonts.css";
+import { fontPreloads } from "../styles/fonts";
+import type { PageDefinition, SiteDefinition } from "../lib/content/types";
+import { pageHref } from "../lib/content/types";
+
+interface Props {
+  site: SiteDefinition;
+  page: PageDefinition;
+}
+
+const { site, page } = Astro.props;
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  image={page.seo.image}
+  lang={site.lang}
+  theme={site.theme}
+  analytics={site.analytics}
+  scripts={site.scripts}
+  canonical={new URL(pageHref(page.path), site.url).href}
+>
+  <Fragment slot="head">
+    {fontPreloads(site.theme).map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+  </Fragment>
+  <SiteHeader header={page.header} logo={site.logo} />
+  <main id="main">
+    <BlockRenderer blocks={page.blocks} logo={site.logo} />
+  </main>
+  <SiteFooter footer={page.footer} logo={site.logo} />
+</BaseLayout>

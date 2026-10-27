@@ -1,0 +1,92 @@
+---
+/**
+ * Loads GTM / GA4 and external third-party scripts.
+ * With loading "interaction" (default) nothing is fetched until the first user interaction,
+ * or `maxDelaySeconds` after window load, so third parties don't slow down the first render.
+ * With no ids and no scripts nothing is rendered.
+ */
+import type { AnalyticsConfig, ExternalScript } from "../../types";
+
+interface Props {
+  analytics?: AnalyticsConfig;
+  scripts?: ExternalScript[];
+  position: "head" | "body";
+}
+
+const { analytics = {}, scripts = [], position } = Astro.props;
+const gtmId = analytics.gtmId?.trim() || "";
+const ga4Id = analytics.ga4Id?.trim() || "";
+const dataAttrs = (attrs: Record<string, string> = {}) =>
+  Object.fromEntries(Object.entries(attrs).filter(([name]) => /^data-[a-z0-9-]+$/.test(name)));
+
+const config = {
+  gtmId,
+  ga4Id,
+  scripts: scripts.map((s) => ({ src: s.src, attributes: dataAttrs(s.attributes) })),
+  defer: analytics.loading !== "immediate",
+  maxDelayMs: (analytics.maxDelaySeconds ?? 4) * 1000,
+};
+const active = !!(gtmId || ga4Id || scripts.length);
+---
+
+{
+  position === "head" && active && (
+    <script is:inline define:vars={{ config }}>
+      (function (cfg) {
+        var loaded = false;
+        function add(src, attrs) {
+          var s = document.createElement("script");
+          s.async = true;
+          s.src = src;
+          for (var name in attrs || {}) s.setAttribute(name, attrs[name]);
+          document.head.appendChild(s);
+        }
+        function load() {
+          if (loaded) return;
+          loaded = true;
+          window.dataLayer = window.dataLayer || [];
+          if (cfg.gtmId) {
+            window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+            add("https://www.googletagmanager.com/gtm.js?id=" + cfg.gtmId);
+          } else if (cfg.ga4Id) {
+            window.gtag = function () {
+              window.dataLayer.push(arguments);
+            };
+            window.gtag("js", new Date());
+            window.gtag("config", cfg.ga4Id);
+            add("https://www.googletagmanager.com/gtag/js?id=" + cfg.ga4Id);
+          }
+          cfg.scripts.forEach(function (s) {
+            add(s.src, s.attributes);
+          });
+        }
+        if (!cfg.defer) return load();
+        var events = ["pointerdown", "keydown", "scroll", "touchstart", "mousemove"];
+        function trigger() {
+          events.forEach(function (e) {
+            window.removeEventListener(e, trigger, true);
+          });
+          load();
+        }
+        events.forEach(function (e) {
+          window.addEventListener(e, trigger, { capture: true, passive: true });
+        });
+        window.addEventListener("load", function () {
+          setTimeout(trigger, cfg.maxDelayMs);
+        });
+      })(config);
+    </script>
+  )
+}
+{
+  position === "body" && gtmId && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+        title="Google Tag Manager"></iframe>
+    </noscript>
+  )
+}

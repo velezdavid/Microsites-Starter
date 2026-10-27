@@ -1,0 +1,124 @@
+---
+import type { FeatureListBlock } from "../../types";
+import { actionAttrs } from "../../utils";
+import Section from "../layout/Section.astro";
+
+interface Props {
+  block: FeatureListBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, title, intro, items } = block;
+---
+
+<Section {...block}>
+  <div class="ui-split">
+    <div class="fl__head">
+      {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+      {title && <h2 class="ui-h2 ui-h2--tight">{title}</h2>}
+      {intro && <p class="fl__intro">{intro}</p>}
+    </div>
+    <div class="fl__list">
+      {
+        items.map((it) => (
+          <div class="fl__row">
+            <span class="fl__code" aria-hidden="true">
+              {it.code}
+            </span>
+            <div class="fl__body">
+              <div class="fl__title">{it.title}</div>
+              <div class="fl__text">{it.text}</div>
+            </div>
+            {it.link && (
+              <a class="fl__link" href={it.link.href} {...actionAttrs(it.link.action)}>
+                {it.link.label} →
+              </a>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  .fl__head {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .fl__head {
+      position: sticky;
+      top: 96px;
+    }
+  }
+  .fl__intro {
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.6;
+    color: var(--color-muted);
+    margin: 18px 0 1em;
+  }
+  .fl__list {
+    flex: 1.5 1 440px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fl__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 20px;
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: clamp(18px, 3vw, 26px);
+  }
+  .fl__code {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .fl__body {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .fl__title {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 2.4vw, 22px);
+    font-weight: 600;
+  }
+  .fl__text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin-top: 6px;
+  }
+  .fl__link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text);
+    border: 1px solid var(--color-line);
+    padding: 0 16px;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: background 0.12s;
+  }
+  .fl__link:hover {
+    background: var(--color-surface-2);
+  }
+</style>

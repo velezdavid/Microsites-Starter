@@ -1,0 +1,153 @@
+---
+import type { StatGridBlock } from "../../types";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: StatGridBlock;
+}
+
+const { block } = Astro.props;
+const { layout = "cards", eyebrow, title, items, highlights, source } = block;
+const cells = layout === "cells";
+---
+
+<Section {...block}>
+  <SectionHeading eyebrow={eyebrow} title={title} size={cells ? "md" : "lg"} titleMaxWidth={cells ? "760px" : undefined} />
+  <div class:list={["sg__grid", `sg__grid--${layout}`]}>
+    {
+      items.map((it) => (
+        <div class="sg__item">
+          {it.eyebrow && <div class="sg__eyebrow">{it.eyebrow}</div>}
+          <div class:list={["sg__value", { "sg__value--accent": cells || it.highlight }]}>{it.value}</div>
+          <div class="sg__text">{it.text}</div>
+        </div>
+      ))
+    }
+  </div>
+  {
+    highlights && highlights.items.length > 0 && (
+      <>
+        <div class="ui-label sg__hl-label">{highlights.label}</div>
+        <div class="sg__hl-grid">
+          {highlights.items.map((h) => (
+            <div class:list={["sg__hl", { "sg__hl--on": !!h.note }]}>
+              <span class="sg__hl-title">{h.title}</span>
+              <span class="sg__hl-meta">{h.meta}</span>
+              {h.note && <span class="sg__hl-note">{h.note}</span>}
+            </div>
+          ))}
+        </div>
+      </>
+    )
+  }
+  {source && <p class="sg__source">{source}</p>}
+</Section>
+
+<style>
+  .sg__grid {
+    display: grid;
+  }
+  .sg__item {
+    min-width: 0;
+  }
+  .sg__grid--cards {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 16px;
+    margin-top: clamp(28px, 5vw, 48px);
+  }
+  .sg__grid--cards .sg__item {
+    background: var(--card-bg);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: clamp(22px, 3.5vw, 34px);
+  }
+  .sg__grid--cells {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    margin-top: clamp(28px, 5vw, 44px);
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+  .sg__grid--cells .sg__item {
+    padding: clamp(20px, 3vw, 30px);
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .sg__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-dim);
+    letter-spacing: 0.1em;
+  }
+  .sg__value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--color-text);
+  }
+  .sg__grid--cards .sg__value {
+    font-size: clamp(46px, 7vw, 66px);
+    margin-top: 16px;
+  }
+  .sg__grid--cells .sg__value {
+    font-size: clamp(44px, 6.5vw, 64px);
+  }
+  .sg__value--accent {
+    color: var(--color-accent);
+  }
+  .sg__text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin-top: 12px;
+  }
+  .sg__hl-label {
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .sg__hl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .sg__hl {
+    padding: 16px 18px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .sg__hl--on {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+  .sg__hl-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .sg__hl--on .sg__hl-title {
+    color: var(--color-accent);
+  }
+  .sg__hl-meta {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .sg__hl-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+  }
+  .sg__source {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-dim);
+    margin: 20px 0 0;
+    max-width: 760px;
+  }
+</style>

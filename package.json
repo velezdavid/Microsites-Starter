@@ -1,0 +1,24 @@
+{
+  "name": "microsites-starter",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev:web": "npm run dev --workspace=web",
+    "dev:studio": "npm run dev --workspace=studio",
+    "build:web": "npm run build --workspace=web",
+    "build:studio": "npm run build --workspace=studio",
+    "preview:web": "npm run preview --workspace=web",
+    "check:web": "npm run check --workspace=web",
+    "deploy:studio": "npm run deploy --workspace=studio",
+    "check:ui": "npm exec --workspace=web -- astro check --root ../../packages/ui",
+    "deploy:draft": "node scripts/deploy.mjs",
+    "deploy:prod": "node scripts/deploy.mjs --prod"
+  }
+}

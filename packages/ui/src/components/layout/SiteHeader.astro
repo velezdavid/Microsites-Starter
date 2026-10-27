@@ -1,0 +1,535 @@
+---
+import type { HeaderConfig, LogoConfig } from "../../types";
+import { actionAttrs } from "../../utils";
+import Logo from "./Logo.astro";
+
+interface Props {
+  header: HeaderConfig;
+  logo: LogoConfig;
+  labels?: { nav?: string; menu?: string; close?: string };
+}
+
+const { header, logo, labels = {} } = Astro.props;
+const { nav = [], links = [], cta, homeHref, pulse, wordmarkOnly } = header;
+const navLabel = labels.nav ?? "Principal";
+const menuLabel = labels.menu ?? "MENÚ";
+const closeLabel = labels.close ?? "CERRAR";
+const hasNav = nav.length > 0;
+---
+
+<header class:list={["hdr", { "hdr--nav": hasNav }]} data-site-header>
+  <div class="ui-container hdr__bar">
+    <Logo logo={logo} href={homeHref} showMark={!wordmarkOnly} pulse={pulse} />
+
+    {
+      hasNav && (
+        <nav class="hdr__nav" aria-label={navLabel}>
+          {nav.map((m) => (
+            <button
+              type="button"
+              class="hdr__nav-btn"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls={`menu-${m.id}`}
+              data-menu-toggle={m.id}
+            >
+              {m.label}
+              <span class="hdr__caret" aria-hidden="true">▾</span>
+            </button>
+          ))}
+        </nav>
+      )
+    }
+
+    <div class="hdr__actions">
+      {
+        links.map((l) => (
+          <a class="hdr__link" href={l.href} {...actionAttrs(l.action)}>
+            {l.label}
+          </a>
+        ))
+      }
+      {
+        cta && (
+          <a class="hdr__cta" href={cta.href} {...actionAttrs(cta.action)} data-close-menus>
+            {cta.label}
+          </a>
+        )
+      }
+      {
+        hasNav && (
+          <button
+            type="button"
+            class="hdr__burger"
+            aria-expanded="false"
+            aria-controls="menu-movil"
+            data-mobile-toggle
+            data-label-open={menuLabel}
+            data-label-close={closeLabel}
+          >
+            {menuLabel}
+          </button>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    nav.map((m) => (
+      <div class="hdr__panel" id={`menu-${m.id}`} data-menu-panel={m.id} hidden>
+        <div class="ui-container hdr__panel-body">
+          <div class="hdr__panel-head">
+            <div class="hdr__panel-label">{m.label}</div>
+            {m.blurb && <div class="hdr__panel-blurb">{m.blurb}</div>}
+          </div>
+          {m.layout === "mega" ? (
+            <div class="hdr__mega">
+              {m.columns.map((c) => (
+                <div class="hdr__col">
+                  {c.title && (
+                    <a class="hdr__col-title" href={c.href} {...actionAttrs(c.action)} data-close-menus>
+                      {c.title} →
+                    </a>
+                  )}
+                  {c.items.map((it) => (
+                    <a class="hdr__mega-item" href={it.href} {...actionAttrs(it.action)} data-close-menus>
+                      <span class="hdr__mega-title">{it.title}</span>
+                      {it.meta && <span class="hdr__mega-meta">{it.meta}</span>}
+                    </a>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="hdr__list">
+              {m.columns.flatMap((c) =>
+                c.items.map((it) => (
+                  <a class="hdr__list-item" href={it.href} {...actionAttrs(it.action)} data-close-menus>
+                    <span class="hdr__list-title">{it.title}</span>
+                    {it.description && <span class="hdr__list-desc">{it.description}</span>}
+                  </a>
+                )),
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    ))
+  }
+
+  {
+    hasNav && (
+      <nav id="menu-movil" class="hdr__mobile" aria-label={navLabel} hidden>
+        <div class="hdr__mobile-body">
+          {nav.map((m) => (
+            <div class="hdr__group">
+              <button
+                type="button"
+                class="hdr__group-btn"
+                aria-expanded="false"
+                aria-controls={`menu-movil-${m.id}`}
+                data-group-toggle={m.id}
+              >
+                {m.label}
+                <span class="hdr__group-sign" aria-hidden="true">
+                  +
+                </span>
+              </button>
+              <div class="hdr__group-body" id={`menu-movil-${m.id}`} hidden>
+                {m.columns.map((c) => (
+                  <div class="hdr__group-col">
+                    {c.title && <div class="hdr__group-title">{c.title}</div>}
+                    {c.items.map((it) => (
+                      <a class="hdr__group-item" href={it.href} {...actionAttrs(it.action)} data-close-menus>
+                        {it.title}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {cta && (
+            <a class="hdr__mobile-cta" href={cta.href} {...actionAttrs(cta.action)} data-close-menus>
+              {cta.label}
+            </a>
+          )}
+        </div>
+      </nav>
+    )
+  }
+</header>
+
+<script>
+  import { CLOSE_MENUS_EVENT } from "../../scripts/actions";
+
+  const DESKTOP = window.matchMedia("(min-width: 900px)");
+
+  document.querySelectorAll<HTMLElement>("[data-site-header]").forEach((header) => {
+    const toggles = Array.from(header.querySelectorAll<HTMLButtonElement>("[data-menu-toggle]"));
+    const panels = Array.from(header.querySelectorAll<HTMLElement>("[data-menu-panel]"));
+    const burger = header.querySelector<HTMLButtonElement>("[data-mobile-toggle]");
+    const mobile = header.querySelector<HTMLElement>("#menu-movil");
+    const groups = Array.from(header.querySelectorAll<HTMLButtonElement>("[data-group-toggle]"));
+
+    const openMenu = (id: string | null) => {
+      toggles.forEach((t) => t.setAttribute("aria-expanded", String(t.dataset.menuToggle === id)));
+      panels.forEach((p) => (p.hidden = p.dataset.menuPanel !== id));
+    };
+
+    const openGroup = (id: string | null) => {
+      groups.forEach((g) => {
+        const on = g.dataset.groupToggle === id;
+        g.setAttribute("aria-expanded", String(on));
+        const sign = g.querySelector(".hdr__group-sign");
+        if (sign) sign.textContent = on ? "–" : "+";
+        const body = header.querySelector<HTMLElement>(`#${g.getAttribute("aria-controls")}`);
+        if (body) body.hidden = !on;
+      });
+    };
+
+    const setMobile = (open: boolean) => {
+      if (!burger || !mobile) return;
+      mobile.hidden = !open;
+      burger.setAttribute("aria-expanded", String(open));
+      burger.textContent = (open ? burger.dataset.labelClose : burger.dataset.labelOpen) ?? "";
+      openGroup(open ? (groups[0]?.dataset.groupToggle ?? null) : null);
+    };
+
+    const closeAll = () => {
+      openMenu(null);
+      setMobile(false);
+    };
+
+    toggles.forEach((t) => {
+      t.addEventListener("click", () => openMenu(t.getAttribute("aria-expanded") === "true" ? null : t.dataset.menuToggle!));
+      t.addEventListener("mouseenter", () => openMenu(t.dataset.menuToggle!));
+    });
+    header.addEventListener("mouseleave", () => openMenu(null));
+    burger?.addEventListener("click", () => setMobile(mobile?.hidden ?? false));
+    groups.forEach((g) =>
+      g.addEventListener("click", () => openGroup(g.getAttribute("aria-expanded") === "true" ? null : g.dataset.groupToggle!)),
+    );
+    header.querySelectorAll("[data-close-menus]").forEach((a) => a.addEventListener("click", closeAll));
+    document.addEventListener(CLOSE_MENUS_EVENT, closeAll);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAll();
+    });
+    DESKTOP.addEventListener("change", (e) => (e.matches ? setMobile(false) : openMenu(null)));
+  });
+</script>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hdr__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 64px;
+  }
+
+  /* Desktop nav */
+  .hdr__nav {
+    display: none;
+    align-items: stretch;
+    height: 100%;
+    flex: 1 1 auto;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+  .hdr__nav-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 18px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    transition: color 0.12s;
+  }
+  .hdr__nav-btn:hover,
+  .hdr__nav-btn[aria-expanded="true"] {
+    color: var(--color-text);
+  }
+  .hdr__nav-btn[aria-expanded="true"] {
+    border-bottom-color: var(--color-accent);
+  }
+  .hdr__caret {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .hdr:not(.hdr--nav) .hdr__actions {
+    gap: 8px;
+  }
+  .hdr__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .hdr__link:hover {
+    color: var(--color-text);
+  }
+  .hdr__cta {
+    white-space: nowrap;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 11px 18px;
+    border-radius: 6px;
+    transition: background 0.12s;
+  }
+  .hdr__cta:hover {
+    background: var(--color-accent-hover);
+  }
+  .hdr--nav .hdr__cta {
+    display: none;
+  }
+  .hdr__burger {
+    min-width: 44px;
+    height: 44px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+  }
+
+  @media (min-width: 640px) {
+    .hdr--nav .hdr__cta {
+      display: inline-block;
+    }
+  }
+  @media (min-width: 900px) {
+    .hdr__nav {
+      display: flex;
+    }
+    .hdr__burger,
+    .hdr__mobile {
+      display: none !important;
+    }
+  }
+  @media (max-width: 899px) {
+    .hdr__panel {
+      display: none !important;
+    }
+  }
+
+  /* Desktop dropdown panel */
+  .hdr__panel {
+    border-top: 1px solid var(--color-line);
+    background: var(--color-raised);
+  }
+  .hdr__panel-body {
+    padding-block: 32px 36px;
+  }
+  .hdr__panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hdr__panel-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .hdr__panel-blurb {
+    font-size: 15px;
+    color: var(--color-muted);
+    max-width: 620px;
+  }
+  .hdr__mega {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 32px;
+  }
+  .hdr__col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .hdr__col-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+  .hdr__col-title:hover {
+    color: var(--color-text);
+  }
+  .hdr__mega-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 12px;
+    margin: 0 -12px;
+    border-radius: 6px;
+    transition: background 0.12s;
+  }
+  .hdr__mega-item:hover {
+    background: var(--color-surface);
+  }
+  .hdr__mega-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .hdr__mega-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-dim);
+  }
+  .hdr__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px 24px;
+  }
+  .hdr__list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line-soft);
+    transition:
+      background 0.12s,
+      border-color 0.12s;
+  }
+  .hdr__list-item:hover {
+    background: var(--color-surface);
+    border-color: var(--color-line);
+  }
+  .hdr__list-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .hdr__list-desc {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+
+  /* Mobile menu */
+  .hdr__mobile {
+    border-top: 1px solid var(--color-line);
+    background: var(--color-raised);
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
+  }
+  .hdr__mobile-body {
+    padding: 4px clamp(16px, 4vw, 40px) 24px;
+  }
+  .hdr__group {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hdr__group-btn {
+    width: 100%;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .hdr__group-btn[aria-expanded="true"] {
+    color: var(--color-accent);
+  }
+  .hdr__group-sign {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--color-muted);
+  }
+  .hdr__group-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 0 18px;
+  }
+  .hdr__group-col {
+    display: flex;
+    flex-direction: column;
+  }
+  .hdr__group-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    padding: 6px 0;
+  }
+  .hdr__group-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 16px;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+  .hdr__mobile-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin-top: 20px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+  }
+</style>

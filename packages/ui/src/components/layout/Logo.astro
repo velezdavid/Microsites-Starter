@@ -1,0 +1,63 @@
+---
+import type { LogoConfig } from "../../types";
+import RingsMark from "./RingsMark.astro";
+
+interface Props {
+  logo: LogoConfig;
+  href?: string;
+  showMark?: boolean;
+  pulse?: boolean;
+  size?: "header" | "footer";
+}
+
+const { logo, href, showMark = true, pulse = false, size = "header" } = Astro.props;
+const Tag = href ? "a" : "div";
+---
+
+<Tag href={href} aria-label={href ? logo.label : undefined} class:list={["logo", `logo--${size}`]}>
+  {
+    logo.image ? (
+      <img class="logo__img" src={logo.image.src} alt={href ? "" : logo.image.alt} />
+    ) : (
+      <>
+        {showMark && logo.mark?.type === "rings" && <RingsMark size="sm" pulse={pulse} />}
+        <span class="logo__word">
+          {logo.wordmark.map((part) => (part.accent ? <span class="logo__accent">{part.text}</span> : part.text))}
+        </span>
+      </>
+    )
+  }
+</Tag>
+
+<style>
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .logo__word {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .logo--header .logo__word {
+    font-size: clamp(19px, 2.2vw, 22px);
+  }
+  .logo--footer .logo__word {
+    font-size: 22px;
+  }
+  .logo__accent {
+    color: var(--color-accent);
+  }
+  .logo__img {
+    display: block;
+    width: auto;
+  }
+  .logo--header .logo__img {
+    height: 28px;
+  }
+  .logo--footer .logo__img {
+    height: 32px;
+  }
+</style>

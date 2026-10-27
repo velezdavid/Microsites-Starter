@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+.sanity/
+apps/studio/dist/
+
+# Netlify
+.netlify/
+
+# Environment variables (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Generated seed files
+apps/studio/seed/out/
+
+# Original sites to migrate: local only (keep the empty folder)
+reference/*
+!reference/.gitkeep
+
+# Local-only documentation
+CLAUDE.md
+docs/

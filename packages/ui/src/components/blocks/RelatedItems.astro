@@ -1,0 +1,68 @@
+---
+import type { RelatedItemsBlock } from "../../types";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: RelatedItemsBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, linkLabel, items } = block;
+---
+
+<Section {...block}>
+  <SectionHeading eyebrow={eyebrow} />
+  <div class="ri__grid">
+    {
+      items.map((it) => (
+        <a class="ri__card" href={it.href}>
+          {it.eyebrow && <span class="ri__eyebrow">{it.eyebrow}</span>}
+          <span class="ri__title">{it.title}</span>
+          <span class="ri__link">{linkLabel} →</span>
+        </a>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .ri__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+    margin-top: clamp(24px, 4vw, 40px);
+  }
+  .ri__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--color-line);
+    min-width: 0;
+    transition: border-color 0.12s;
+  }
+  .ri__card:hover {
+    border-color: var(--color-accent);
+  }
+  .ri__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+  }
+  .ri__title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .ri__link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+    margin-top: auto;
+    padding-top: 6px;
+  }
+</style>

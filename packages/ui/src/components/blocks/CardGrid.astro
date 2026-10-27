@@ -1,0 +1,185 @@
+---
+import type { CardGridBlock } from "../../types";
+import { pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: CardGridBlock;
+}
+
+const { block } = Astro.props;
+const { layout = "stack", numbering = "none", eyebrow, title, intro, cards, chips } = block;
+---
+
+<Section {...block}>
+  {
+    layout === "split" ? (
+      <div class="ui-split">
+        <div class="cg__head">
+          {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+          {title && <h2 class="ui-h2 ui-h2--tight">{title}</h2>}
+          {intro && <p class="ui-split__text">{intro}</p>}
+        </div>
+        <div class="cg__grid cg__grid--split">
+          {cards.map((c) => (
+            <div class="cg__card cg__card--plain">
+              <div class:list={["cg__plain-title", { "cg__plain-title--accent": c.highlight }]}>{c.title}</div>
+              <div class="cg__plain-text">{c.text}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <>
+        <SectionHeading eyebrow={eyebrow} title={title} intro={intro} size="md" />
+        <div class:list={["cg__grid", `cg__grid--${numbering}`]}>
+          {cards.map((c, i) =>
+            numbering === "inline" ? (
+              <div class="cg__card cg__card--inline">
+                <span class="cg__num-accent">{pad2(i + 1)}</span>
+                <span class="cg__inline-body">
+                  <span class="cg__inline-title">{c.title}</span>
+                  <span class="cg__inline-text">{c.text}</span>
+                </span>
+              </div>
+            ) : numbering === "top" ? (
+              <div class="cg__card cg__card--top">
+                <span class="ui-num">{pad2(i + 1)}</span>
+                <span class="cg__top-title">{c.title}</span>
+                <span class="cg__top-text">{c.text}</span>
+              </div>
+            ) : (
+              <div class="cg__card cg__card--plain">
+                <div class:list={["cg__plain-title", { "cg__plain-title--accent": c.highlight }]}>{c.title}</div>
+                <div class="cg__plain-text">{c.text}</div>
+              </div>
+            ),
+          )}
+        </div>
+        {chips && chips.items.length > 0 && (
+          <div class="cg__chips">
+            <span class="ui-label">{chips.label}</span>
+            <div class="ui-chips">
+              {chips.items.map((c) => (
+                <span class="ui-chip cg__chip">{c}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+</Section>
+
+<style>
+  .cg__head {
+    flex: 1 1 340px;
+    min-width: 0;
+  }
+  .cg__grid {
+    display: grid;
+    margin-top: clamp(24px, 4vw, 40px);
+  }
+  .cg__grid--top {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 16px;
+  }
+  .cg__grid--inline {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    gap: 12px;
+  }
+  .cg__grid--none,
+  .cg__grid--split {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+  }
+  .cg__grid--split {
+    flex: 1.2 1 420px;
+    min-width: 0;
+    margin-top: 0;
+  }
+  .cg__card {
+    background: var(--card-bg);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    min-width: 0;
+  }
+
+  .cg__card--top {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: clamp(20px, 3vw, 28px);
+  }
+  .cg__top-title {
+    font-family: var(--font-display);
+    font-size: clamp(19px, 2.4vw, 22px);
+    font-weight: 600;
+  }
+  .cg__top-text {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+
+  .cg__card--inline {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    padding: 20px;
+  }
+  .cg__num-accent {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+    flex: 0 0 auto;
+  }
+  .cg__inline-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .cg__inline-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .cg__inline-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  .cg__card--plain {
+    padding: clamp(20px, 3vw, 26px);
+  }
+  .cg__plain-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .cg__plain-title--accent {
+    color: var(--color-accent);
+  }
+  .cg__plain-text {
+    font-size: 15px;
+    color: var(--color-muted);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+
+  .cg__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: clamp(28px, 5vw, 44px);
+    padding-top: 24px;
+    border-top: 1px solid var(--color-line);
+  }
+  .cg__chip {
+    padding: 8px 12px;
+  }
+</style>

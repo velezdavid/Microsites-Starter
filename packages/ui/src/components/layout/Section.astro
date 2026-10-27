@@ -1,0 +1,26 @@
+---
+import type { BlockBase } from "../../types";
+
+interface Props extends BlockBase {
+  /** Drop the default vertical padding so the block can set its own. */
+  flush?: boolean;
+  /** Draw the bottom divider line. */
+  ruled?: boolean;
+}
+
+const { anchor, tone = "base", decor = [], flush = false, ruled = true } = Astro.props;
+---
+
+<section
+  id={anchor}
+  class:list={[
+    "ui-section",
+    `ui-section--${tone}`,
+    { "ui-section--decorated": decor.length > 0, "ui-section--unruled": !ruled },
+  ]}
+>
+  {decor.map((d) => <div class={`ui-decor ui-decor--${d}`} aria-hidden="true" />)}
+  <div class:list={["ui-container ui-section__body", { "ui-section__body--flush": flush }]}>
+    <slot />
+  </div>
+</section>

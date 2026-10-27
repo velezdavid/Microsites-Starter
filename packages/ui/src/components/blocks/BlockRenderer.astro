@@ -1,0 +1,62 @@
+---
+import type { Block, LogoConfig } from "../../types";
+import CardGrid from "./CardGrid.astro";
+import CatalogFilterGrid from "./CatalogFilterGrid.astro";
+import CatalogGrid from "./CatalogGrid.astro";
+import CatalogTabs from "./CatalogTabs.astro";
+import ContactSection from "./ContactSection.astro";
+import FeatureList from "./FeatureList.astro";
+import Hero from "./Hero.astro";
+import RelatedItems from "./RelatedItems.astro";
+import RichText from "./RichText.astro";
+import SpecTable from "./SpecTable.astro";
+import SplitList from "./SplitList.astro";
+import StatGrid from "./StatGrid.astro";
+import StepFlow from "./StepFlow.astro";
+import VariantCards from "./VariantCards.astro";
+
+interface Props {
+  blocks: Block[];
+  /** Site-level data some blocks need (e.g. the brand mark in the contact card). */
+  logo?: LogoConfig;
+}
+
+const { blocks, logo } = Astro.props;
+---
+
+{
+  blocks.map((block) => {
+    switch (block._type) {
+      case "hero":
+        return <Hero block={block} />;
+      case "cardGrid":
+        return <CardGrid block={block} />;
+      case "statGrid":
+        return <StatGrid block={block} />;
+      case "featureList":
+        return <FeatureList block={block} />;
+      case "splitList":
+        return <SplitList block={block} />;
+      case "variantCards":
+        return <VariantCards block={block} />;
+      case "specTable":
+        return <SpecTable block={block} />;
+      case "stepFlow":
+        return <StepFlow block={block} />;
+      case "contactSection":
+        return <ContactSection block={block} logo={logo} />;
+      case "richText":
+        return <RichText block={block} />;
+      case "catalogTabs":
+        return <CatalogTabs block={block} />;
+      case "catalogFilterGrid":
+        return <CatalogFilterGrid block={block} />;
+      case "catalogGrid":
+        return <CatalogGrid block={block} />;
+      case "relatedItems":
+        return <RelatedItems block={block} />;
+      default:
+        return null;
+    }
+  })
+}

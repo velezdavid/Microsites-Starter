@@ -1,0 +1,22 @@
+---
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  size?: "lg" | "md";
+  /** Max width of the title, e.g. "760px". */
+  titleMaxWidth?: string;
+}
+
+const { eyebrow, title, intro, size = "lg", titleMaxWidth } = Astro.props;
+---
+
+{eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+{
+  title && (
+    <h2 class:list={["ui-h2", { "ui-h2--md": size === "md" }]} style={titleMaxWidth ? `max-width:${titleMaxWidth}` : undefined}>
+      {title}
+    </h2>
+  )
+}
+{intro && <p class="ui-intro">{intro}</p>}

@@ -1,0 +1,208 @@
+---
+import type { CatalogFilterGridBlock } from "../../types";
+import { actionAttrs } from "../../utils";
+import Section from "../layout/Section.astro";
+import SectionHeading from "../layout/SectionHeading.astro";
+
+interface Props {
+  block: CatalogFilterGridBlock;
+}
+
+const { block } = Astro.props;
+const { id, eyebrow, title, filterAriaLabel, filters, cards } = block;
+const all = filters[0]?.value ?? "all";
+---
+
+<Section {...block}>
+  <div data-filter-scope={id} data-filter-all={all}>
+    <div class="cf__head">
+      <div class="cf__heading">
+        <SectionHeading eyebrow={eyebrow} title={title} />
+      </div>
+      <div role="group" aria-label={filterAriaLabel} class="cf__filters">
+        {
+          filters.map((f, i) => (
+            <button type="button" class="cf__filter" aria-pressed={i === 0 ? "true" : "false"} data-filter-value={f.value}>
+              {f.label}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="cf__grid">
+      {
+        cards.map((c) => (
+          <article class="cf__card" id={c.id} data-filter-tags={c.tags.join(" ")}>
+            <div class="cf__meta">
+              <span>{c.eyebrow}</span>
+              {c.stat && <span class="cf__stat">{c.stat}</span>}
+            </div>
+            <h3 class="cf__title">{c.title}</h3>
+            <p class="cf__text">{c.text}</p>
+            {c.bullets && c.bullets.length > 0 && (
+              <div class="cf__bullets">
+                {c.bullets.map((b) => (
+                  <div class="cf__bullet">
+                    <span class="ui-dot cf__dot" />
+                    {b}
+                  </div>
+                ))}
+              </div>
+            )}
+            {c.chips && c.chips.length > 0 && (
+              <div class="cf__chips">
+                {c.chips.map((ch) => (
+                  <a class="cf__chip" href={ch.href} {...actionAttrs(ch.action)}>
+                    {ch.label}
+                  </a>
+                ))}
+              </div>
+            )}
+            {c.cta && (
+              <a class="cf__cta" href={c.cta.href} {...actionAttrs(c.cta.action)}>
+                {c.cta.label} →
+              </a>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  .cf__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .cf__heading {
+    min-width: 0;
+  }
+  .cf__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cf__filter {
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-text);
+    transition: background 0.12s;
+  }
+  .cf__filter[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+  .cf__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 16px;
+    margin-top: clamp(28px, 5vw, 44px);
+  }
+  .cf__card {
+    background: var(--card-bg);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: clamp(20px, 3.5vw, 30px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-margin-top: 84px;
+    min-width: 0;
+    transition: border-color 0.2s;
+  }
+  .cf__card[data-highlighted] {
+    border-color: var(--color-accent);
+  }
+  .cf__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+  }
+  .cf__stat {
+    color: var(--color-accent);
+  }
+  .cf__title {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 26px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .cf__text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin: 0;
+  }
+  .cf__bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cf__bullet {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .cf__dot {
+    transform: translateY(-2px);
+  }
+  .cf__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-line);
+  }
+  .cf__chip {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    min-height: 36px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+  .cf__chip:hover {
+    background: var(--color-line);
+  }
+  .cf__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border-radius: 6px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    transition: background 0.12s;
+  }
+  .cf__cta:hover {
+    background: var(--color-accent-hover);
+  }
+</style>

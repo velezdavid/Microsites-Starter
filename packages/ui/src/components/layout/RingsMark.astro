@@ -1,0 +1,39 @@
+---
+/** Concentric-rings brand mark drawn with CSS (accent color). */
+interface Props {
+  size?: "sm" | "lg";
+  pulse?: boolean;
+}
+
+const { size = "sm", pulse = false } = Astro.props;
+const rings = size === "lg" ? [[44, 0.18], [30, 0.35], [18, 0.6]] : [[22, 0.35], [13, 0.6]];
+const box = rings[0][0];
+const dot = size === "lg" ? 6 : 5;
+---
+
+<span class="rings" style={`width:${box}px;height:${box}px`} aria-hidden="true">
+  {rings.map(([d, o]) => <span class="rings__ring" style={`width:${d}px;height:${d}px;opacity:${o}`} />)}
+  <span class:list={["rings__dot", { "rings__dot--pulse": pulse }]} style={`width:${dot}px;height:${dot}px`}></span>
+</span>
+
+<style>
+  .rings {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .rings__ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid var(--color-accent);
+  }
+  .rings__dot {
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .rings__dot--pulse {
+    animation: ui-pulse 1.8s ease-in-out infinite;
+  }
+</style>

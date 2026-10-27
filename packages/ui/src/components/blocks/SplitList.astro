@@ -1,0 +1,143 @@
+---
+import type { SplitListBlock } from "../../types";
+import { pad2 } from "../../utils";
+import Section from "../layout/Section.astro";
+
+interface Props {
+  block: SplitListBlock;
+}
+
+const { block } = Astro.props;
+const { eyebrow, title, statement, text, tiles = [], listLabel, listStyle = "bullets", items } = block;
+---
+
+<Section {...block}>
+  <div class:list={["ui-split", { "sl--statement": !!statement }]}>
+    <div class="sl__main">
+      {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+      {title && <h2 class="ui-h2 ui-h2--md">{title}</h2>}
+      {statement && <p class="sl__statement">{statement}</p>}
+      {text && <p class="sl__text">{text}</p>}
+      {
+        tiles.length > 0 && (
+          <div class="sl__tiles">
+            {tiles.map((t) => (
+              <div class="sl__tile">{t}</div>
+            ))}
+          </div>
+        )
+      }
+    </div>
+    <div class="sl__aside">
+      {listLabel && <div class="ui-label sl__label">{listLabel}</div>}
+      <div class:list={["sl__list", `sl__list--${listStyle}`]}>
+        {
+          items.map((it, i) =>
+            listStyle === "numbered" ? (
+              <div class="sl__row sl__row--numbered">
+                <span class="sl__num">{pad2(i + 1)}</span>
+                <span class="sl__row-title">{it}</span>
+              </div>
+            ) : (
+              <div class="sl__row sl__row--bullet">
+                <span class="ui-dot" />
+                {it}
+              </div>
+            ),
+          )
+        }
+      </div>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .sl__main {
+    flex: 1 1 380px;
+    min-width: 0;
+  }
+  .sl__aside {
+    flex: 1 1 340px;
+    min-width: 0;
+  }
+  .sl--statement .sl__main {
+    flex: 1.2 1 400px;
+  }
+  .sl--statement .sl__aside {
+    flex: 1 1 300px;
+  }
+  .sl__statement {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 16px 0 0;
+    text-wrap: pretty;
+  }
+  .sl__text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-muted);
+    margin: 16px 0 0;
+    max-width: 520px;
+  }
+  .sl__tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .sl__tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    border-radius: 6px;
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent-soft);
+    font-family: var(--font-mono);
+    font-size: clamp(12px, 2.6vw, 14px);
+    text-align: center;
+    padding: 0 6px;
+  }
+  .sl__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sl__list--numbered {
+    margin-top: 12px;
+  }
+  .sl--statement .sl__list--bullets {
+    margin-top: 12px;
+  }
+  .sl__row {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+  }
+  .sl__row--bullet {
+    gap: 14px;
+    min-height: 52px;
+    padding: 0 18px;
+    background: var(--card-bg);
+    font-size: 16px;
+  }
+  .sl__row--numbered {
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--color-surface);
+  }
+  .sl__num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+  }
+  .sl__row-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+  }
+</style>

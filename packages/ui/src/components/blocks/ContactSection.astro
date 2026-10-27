@@ -1,0 +1,297 @@
+---
+import type { ContactSectionBlock, LogoConfig } from "../../types";
+import RingsMark from "../layout/RingsMark.astro";
+import Section from "../layout/Section.astro";
+
+interface Props {
+  block: ContactSectionBlock;
+  logo?: LogoConfig;
+}
+
+const { block, logo } = Astro.props;
+const { eyebrow, title, text, contact, form } = block;
+const emailHref = `mailto:${contact.email}${contact.emailSubject ? `?subject=${encodeURIComponent(contact.emailSubject)}` : ""}`;
+const fieldLabels = Object.fromEntries((form?.fields ?? []).map((f) => [f.name, f.label]));
+---
+
+<Section {...block} flush ruled={false}>
+  <div class:list={["cs", form ? "cs--form" : "cs--card"]}>
+    <div class="cs__intro">
+      {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
+      <h2 class="cs__title">{title}</h2>
+      {text && <p class="cs__text">{text}</p>}
+      {
+        form && (
+          <div class="cs__details">
+            <span class="cs__details-title">{contact.title}</span>
+            {contact.subtitle && <span class="cs__subtitle">{contact.subtitle}</span>}
+            <a class="cs__details-email" href={emailHref}>
+              {contact.email}
+            </a>
+            {contact.note && <span class="cs__note cs__note--left">{contact.note}</span>}
+          </div>
+        )
+      }
+    </div>
+
+    {
+      form ? (
+        <form
+          class="cs__form"
+          data-mailto-form
+          data-to={contact.email}
+          data-subject={form.subject}
+          data-context={JSON.stringify(form.context ?? [])}
+          data-labels={JSON.stringify(fieldLabels)}
+          data-success={form.successMessage}
+        >
+          {form.fields.map((f) => (
+            <label class:list={["cs__field", { "cs__field--wide": f.type === "textarea" }]}>
+              {f.label}
+              {f.type === "textarea" ? (
+                <textarea class="cs__input cs__textarea" name={f.name} rows={4} placeholder={f.placeholder} required={f.required} />
+              ) : f.type === "select" ? (
+                <select class="cs__input" name={f.name} required={f.required}>
+                  {(f.options ?? []).map((o) => (
+                    <option value={o}>{o}</option>
+                  ))}
+                </select>
+              ) : (
+                <input class="cs__input" name={f.name} type={f.type} placeholder={f.placeholder} required={f.required} />
+              )}
+            </label>
+          ))}
+          <div class="cs__submit-row">
+            <button type="submit" class="ui-btn ui-btn--primary cs__submit">
+              {form.submitLabel}
+            </button>
+            <span role="status" class="cs__status" data-status />
+          </div>
+        </form>
+      ) : (
+        <div class="cs__card">
+          <div class="cs__card-head">
+            {logo?.mark?.type === "rings" && <RingsMark size="lg" />}
+            <div class="cs__card-names">
+              <div class="cs__card-title">{contact.title}</div>
+              {contact.subtitle && <div class="cs__subtitle">{contact.subtitle}</div>}
+            </div>
+          </div>
+          <a class="ui-btn ui-btn--primary cs__card-email" href={emailHref}>
+            {contact.email}
+          </a>
+          {contact.note && <div class="cs__note cs__note--center">{contact.note}</div>}
+        </div>
+      )
+    }
+  </div>
+</Section>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>("form[data-mailto-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const { to = "", subject = "", context = "[]", labels = "{}", success = "" } = form.dataset;
+      const fieldLabels: Record<string, string> = JSON.parse(labels);
+      const lines = (JSON.parse(context) as { label: string; value: string }[]).map((c) => `${c.label}: ${c.value}`);
+      const longText: string[] = [];
+      new FormData(form).forEach((value, name) => {
+        const field = form.elements.namedItem(name);
+        if (field instanceof HTMLTextAreaElement) longText.push(String(value));
+        else lines.push(`${fieldLabels[name] ?? name}: ${value}`);
+      });
+      const body = [...lines, "", ...longText].join("\n");
+      window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const status = form.querySelector("[data-status]");
+      if (status) status.textContent = success;
+    });
+  });
+</script>
+
+<style>
+  .cs {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(28px, 5vw, 56px);
+    padding-block: clamp(56px, 10vw, 110px);
+  }
+  .cs--card {
+    align-items: center;
+  }
+  .cs--form {
+    align-items: flex-start;
+  }
+  .cs__intro {
+    min-width: 0;
+  }
+  .cs--card .cs__intro {
+    flex: 1.2 1 380px;
+  }
+  .cs--form .cs__intro {
+    flex: 1 1 340px;
+  }
+  .cs__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    text-wrap: pretty;
+  }
+  .cs--card .cs__title {
+    font-size: clamp(34px, 6vw, 60px);
+    line-height: 1.02;
+    margin: 0;
+  }
+  .cs--form .cs__title {
+    font-size: clamp(32px, 5.5vw, 54px);
+    line-height: 1.04;
+    margin: 14px 0 0;
+  }
+  .cs__text {
+    color: var(--color-muted);
+  }
+  .cs--card .cs__text {
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.55;
+    margin: 22px 0 1em;
+    max-width: 480px;
+  }
+  .cs--form .cs__text {
+    font-size: clamp(17px, 2vw, 19px);
+    line-height: 1.6;
+    margin: 20px 0 0;
+    max-width: 460px;
+  }
+  .cs__subtitle {
+    font-size: 15px;
+    color: var(--color-muted);
+  }
+  .cs__note {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-dim);
+    letter-spacing: 0.06em;
+  }
+  .cs__note--center {
+    text-align: center;
+    margin-top: 16px;
+  }
+  .cs__note--left {
+    margin-top: 6px;
+  }
+
+  .cs__details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-line);
+  }
+  .cs__details-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .cs__details-email {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--color-accent);
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .cs__card {
+    flex: 1 1 320px;
+    min-width: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 36px);
+  }
+  .cs__card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cs__card-names {
+    min-width: 0;
+  }
+  .cs__card-title {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+  }
+  .cs__card-email {
+    display: flex;
+    min-height: 52px;
+    text-align: center;
+    font-size: clamp(12px, 3.4vw, 15px);
+    padding: 10px 12px;
+    margin-top: 24px;
+    overflow-wrap: anywhere;
+  }
+
+  .cs__form {
+    flex: 1.2 1 380px;
+    min-width: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 36px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 16px;
+  }
+  .cs__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .cs__field--wide,
+  .cs__submit-row {
+    grid-column: 1 / -1;
+  }
+  .cs__input {
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+    outline: none;
+  }
+  .cs__input:focus {
+    border-color: var(--color-accent);
+  }
+  .cs__textarea {
+    padding: 12px 14px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .cs__submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+  }
+  .cs__submit {
+    min-height: 52px;
+    padding: 0 28px;
+  }
+  .cs__status {
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+</style>

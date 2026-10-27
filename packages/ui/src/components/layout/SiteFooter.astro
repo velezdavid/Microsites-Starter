@@ -1,0 +1,134 @@
+---
+import type { FooterConfig, LogoConfig } from "../../types";
+import { actionAttrs } from "../../utils";
+import Logo from "./Logo.astro";
+
+interface Props {
+  footer: FooterConfig;
+  logo: LogoConfig;
+}
+
+const { footer, logo } = Astro.props;
+const { tagline, columns = [], bottomText, legal, legalIsCurrent } = footer;
+const full = columns.length > 0 || !!tagline;
+---
+
+<footer class="ftr">
+  <div class:list={["ui-container", full ? "ftr__body--full" : "ftr__body--min"]}>
+    {
+      full && (
+        <div class="ftr__grid">
+          <div class="ftr__brand">
+            <Logo logo={logo} showMark={false} size="footer" />
+            {tagline && <div class="ftr__tagline">{tagline}</div>}
+          </div>
+          {columns.map((col) => (
+            <nav class="ftr__col" aria-label={col.title}>
+              <div class="ftr__col-title">{col.title}</div>
+              {col.items.map((it) => (
+                <a class="ftr__link" href={it.href} {...actionAttrs(it.action)}>
+                  {it.title}
+                </a>
+              ))}
+            </nav>
+          ))}
+        </div>
+      )
+    }
+    <div class:list={["ftr__bottom", { "ftr__bottom--ruled": full }]}>
+      <span>{bottomText}</span>
+      {
+        legal && (
+          <>
+            <span aria-hidden="true">·</span>
+            {legalIsCurrent ? (
+              <span class="ftr__legal-current">{legal.label}</span>
+            ) : (
+              <a class="ftr__legal" href={legal.href}>
+                {legal.label}
+              </a>
+            )}
+          </>
+        )
+      }
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    border-top: 1px solid var(--color-line);
+    background: var(--color-deep);
+  }
+  .ftr__body--full {
+    padding-block: clamp(44px, 7vw, 64px) 32px;
+  }
+  .ftr__body--min {
+    padding-block: 24px;
+  }
+  .ftr__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+    gap: 32px 24px;
+  }
+  .ftr__brand,
+  .ftr__col {
+    min-width: 0;
+  }
+  .ftr__tagline {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .ftr__col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ftr__col-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin-bottom: 6px;
+  }
+  .ftr__link {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-muted);
+    transition: color 0.12s;
+  }
+  .ftr__link:hover {
+    color: var(--color-text);
+  }
+  .ftr__bottom {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--color-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
+  }
+  .ftr__bottom--ruled {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-line);
+  }
+  .ftr__legal {
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.12s;
+  }
+  .ftr__legal:hover,
+  .ftr__legal-current {
+    color: var(--color-text);
+  }
+</style>
