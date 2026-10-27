@@ -1,8 +1,10 @@
 # Build settings for every microsite Netlify site (one site per SITE_SLUG).
 # Set SITE_SLUG and the PUBLIC_SANITY_* variables in each Netlify site's environment.
+# Netlify site settings: base directory = repo root (empty), package directory = apps/web.
+# Commands run from the repo root, so paths here are relative to it.
 [build]
-  command = "npm run build"
-  publish = "dist"
+  command = "npm run build --workspace=web"
+  publish = "apps/web/dist"
 
 # Hashed assets never change: cache them for a year.
 [[headers]]

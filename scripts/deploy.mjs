@@ -23,6 +23,7 @@ console.log(`\n→ ${prod ? "PRODUCTION" : "Draft"} deploy of "${slug}" (Netlify
 const result = spawnSync(
   "npx",
   ["-y", "netlify-cli@27", "deploy", "--build", "--filter", "web", "--site", sites[slug], "--message", `${slug}-${prod ? "production" : "draft"}`, ...(prod ? ["--prod"] : [])],
-  { cwd: new URL("../apps/web/", import.meta.url), stdio: "inherit", shell: true, env: { ...process.env, SITE_SLUG: slug } },
+  // Run from the repo root, like Netlify CI (base directory = root, package directory = apps/web).
+  { cwd: new URL("../", import.meta.url), stdio: "inherit", shell: true, env: { ...process.env, SITE_SLUG: slug } },
 );
 process.exit(result.status ?? 1);
