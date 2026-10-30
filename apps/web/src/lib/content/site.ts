@@ -1,6 +1,7 @@
 import { createImageUrlBuilder } from "@sanity/image-url";
 import type { Block, FooterConfig, HeaderConfig, LogoConfig, NavColumn, Theme } from "@microsites/ui";
 import { sanityClient } from "sanity:client";
+import { contentClient, isPreviewSite, sectionEditAttr } from "./preview";
 import { mapSection } from "./blocks";
 import { Catalog } from "./catalog";
 import {
@@ -88,15 +89,16 @@ function logo(site: RawSite): LogoConfig {
   };
 }
 
-async function fetchSite(slug: string): Promise<SiteDefinition> {
-  const site = await sanityClient.fetch<RawSite | null>(SITE_QUERY, { slug });
+async function fetchSite(slug: string, preview: boolean): Promise<SiteDefinition> {
+  const client = contentClient(sanityClient, preview);
+  const site = await client.fetch<RawSite | null>(SITE_QUERY, { slug });
   if (!site) throw new Error(`No "site" document with slug "${slug}" in Sanity (SITE_SLUG).`);
 
   const params = { siteId: site._id };
   const [pages, categories, items] = await Promise.all([
-    sanityClient.fetch<RawPage[]>(PAGES_QUERY, params),
-    sanityClient.fetch<RawCategory[]>(CATEGORIES_QUERY, params),
-    sanityClient.fetch<RawItem[]>(ITEMS_QUERY, params),
+    client.fetch<RawPage[]>(PAGES_QUERY, params),
+    client.fetch<RawCategory[]>(CATEGORIES_QUERY, params),
+    client.fetch<RawItem[]>(ITEMS_QUERY, params),
   ]);
   const home = pages.find((p) => p.path === "");
   const catalog = new Catalog(categories, items, home?.sections ?? []);
@@ -113,7 +115,13 @@ async function fetchSite(slug: string): Promise<SiteDefinition> {
       },
       header: header(site, page, catalog, onHome),
       footer: footer(site, page, catalog, onHome),
-      blocks: (page.sections ?? []).map((s) => mapSection(s, { catalog, onHome })).filter((b): b is Block => !!b),
+      blocks: (page.sections ?? [])
+        .map((s) => {
+          const block = mapSection(s, { catalog, onHome });
+          if (block && preview) block.editAttr = sectionEditAttr(page._id, s._key);
+          return block;
+        })
+        .filter((b): b is Block => !!b),
     };
   });
 
@@ -124,13 +132,14 @@ async function fetchSite(slug: string): Promise<SiteDefinition> {
     url: site.url,
     theme: site.theme as unknown as Theme,
     logo: logo(site),
+    // No tracking on the preview site (editors are not visitors).
     analytics: {
-      gtmId: site.analytics?.gtmId || import.meta.env.PUBLIC_GTM_ID,
-      ga4Id: site.analytics?.ga4Id || import.meta.env.PUBLIC_GA4_ID,
+      gtmId: isPreviewSite ? undefined : site.analytics?.gtmId || import.meta.env.PUBLIC_GTM_ID,
+      ga4Id: isPreviewSite ? undefined : site.analytics?.ga4Id || import.meta.env.PUBLIC_GA4_ID,
       loading: site.analytics?.loading,
       maxDelaySeconds: site.analytics?.maxDelay,
     },
-    scripts: (site.scripts ?? []).map((s) => ({
+    scripts: (isPreviewSite ? [] : (site.scripts ?? [])).map((s) => ({
       src: s.src,
       attributes: Object.fromEntries((s.attributes ?? []).map((a) => [a.name, a.value ?? ""])),
     })),
@@ -143,11 +152,15 @@ async function fetchSite(slug: string): Promise<SiteDefinition> {
 
 let cached: Promise<SiteDefinition> | undefined;
 
-/** Loads the microsite named by SITE_SLUG from Sanity (once per build / dev session). */
-export function getSite(): Promise<SiteDefinition> {
+/**
+ * Loads the microsite named by SITE_SLUG from Sanity: once per build for the public site,
+ * on every request in dev and on the preview site (content changes without rebuilding).
+ * `preview` reads drafts and adds the visual-editing markers.
+ */
+export function getSite({ preview = false } = {}): Promise<SiteDefinition> {
   const slug = import.meta.env.SITE_SLUG;
   if (!slug) throw new Error("Missing SITE_SLUG. Set it in apps/web/.env.");
-  if (import.meta.env.DEV) return fetchSite(slug);
-  cached ??= fetchSite(slug);
+  if (import.meta.env.DEV || isPreviewSite) return fetchSite(slug, preview);
+  cached ??= fetchSite(slug, false);
   return cached;
 }

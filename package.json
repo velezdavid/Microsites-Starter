@@ -19,6 +19,7 @@
     "deploy:studio": "npm run deploy --workspace=studio",
     "check:ui": "npm exec --workspace=web -- astro check --root ../../packages/ui",
     "deploy:draft": "node scripts/deploy.mjs",
-    "deploy:prod": "node scripts/deploy.mjs --prod"
+    "deploy:prod": "node scripts/deploy.mjs --prod",
+    "deploy:preview": "node scripts/deploy.mjs --preview-site"
   }
 }

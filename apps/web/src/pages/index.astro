@@ -1,10 +1,12 @@
 ---
 import SitePage from "../components/SitePage.astro";
+import { isPreviewRequest } from "../lib/content/preview";
 import { getSite } from "../lib/content/site";
 
-const site = await getSite();
+const preview = isPreviewRequest(Astro.cookies);
+const site = await getSite({ preview });
 const page = site.pages.find((p) => p.path === "");
 if (!page) throw new Error(`Site "${site.slug}" has no home page (a page with an empty path).`);
 ---
 
-<SitePage site={site} page={page} />
+<SitePage site={site} page={page} preview={preview} />

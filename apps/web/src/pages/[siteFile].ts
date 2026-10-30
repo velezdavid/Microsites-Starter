@@ -7,6 +7,10 @@ import { getSite } from "../lib/content/site";
  *   The Netlify adapter appends its own rules to this file after the build.
  * - Verification files (e.g. Google Search Console's googleXXXX.html).
  */
+// Always static, also on the server-rendered preview site, where an on-demand "/[siteFile]"
+// would catch every one-segment page URL before "/[...path]".
+export const prerender = true;
+
 export const getStaticPaths = (async () => {
   const { verificationFiles } = await getSite();
   return [
@@ -21,7 +25,8 @@ export const GET: APIRoute = async ({ params }) => {
     const lines = site.redirects.map((r) => `${r.from}  ${r.to}  ${r.status}${r.force ? "!" : ""}`);
     return new Response(lines.join("\n") + "\n", { headers: { "Content-Type": "text/plain" } });
   }
-  const file = site.verificationFiles.find((f) => f.filename === params.siteFile)!;
+  const file = site.verificationFiles.find((f) => f.filename === params.siteFile);
+  if (!file) return new Response("Not found", { status: 404 });
   const type = file.filename.endsWith(".html") ? "text/html" : "text/plain";
   return new Response(file.content, { headers: { "Content-Type": `${type}; charset=utf-8` } });
 };

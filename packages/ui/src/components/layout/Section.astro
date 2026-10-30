@@ -8,11 +8,12 @@ interface Props extends BlockBase {
   ruled?: boolean;
 }
 
-const { anchor, tone = "base", decor = [], flush = false, ruled = true } = Astro.props;
+const { anchor, tone = "base", decor = [], flush = false, ruled = true, editAttr } = Astro.props;
 ---
 
 <section
   id={anchor}
+  data-sanity={editAttr}
   class:list={[
     "ui-section",
     `ui-section--${tone}`,

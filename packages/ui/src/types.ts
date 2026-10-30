@@ -127,6 +127,8 @@ export interface BlockBase {
   anchor?: string;
   tone?: "base" | "surface" | "deep";
   decor?: Decor[];
+  /** Visual-editing source (`data-sanity`) for click-to-edit and drag-and-drop; set only in previews. */
+  editAttr?: string;
 }
 
 export interface StatCardAside {

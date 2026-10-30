@@ -2,6 +2,7 @@
 import { BaseLayout, BlockRenderer, SiteFooter, SiteHeader } from "@microsites/ui";
 import "../styles/fonts.css";
 import { fontPreloads } from "../styles/fonts";
+import { isPreviewSite } from "../lib/content/preview";
 import { structuredData } from "../lib/content/structured-data";
 import type { PageDefinition, SiteDefinition } from "../lib/content/types";
 import { pageHref } from "../lib/content/types";
@@ -9,9 +10,20 @@ import { pageHref } from "../lib/content/types";
 interface Props {
   site: SiteDefinition;
   page: PageDefinition;
+  /** Drafts + click-to-edit overlays (Sanity Presentation). */
+  preview?: boolean;
 }
 
-const { site, page } = Astro.props;
+const { site, page, preview = false } = Astro.props;
+// Imported only for previews. The inline env checks let the public build drop it (no CSS/JS there).
+const PreviewOverlay =
+  ((import.meta.env.DEV && import.meta.env.SANITY_VISUAL_EDITING === "true") || import.meta.env.SANITY_PREVIEW_SITE === "true") && preview
+    ? (await import("./PreviewOverlay.astro")).default
+    : undefined;
+if (isPreviewSite) {
+  Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  Astro.response.headers.set("Cache-Control", "private, no-store");
+}
 ---
 
 <BaseLayout
@@ -24,7 +36,7 @@ const { site, page } = Astro.props;
   scripts={site.scripts}
   canonical={new URL(pageHref(page.path), site.url).href}
   siteName={site.name}
-  noIndex={page.seo.noIndex}
+  noIndex={page.seo.noIndex || isPreviewSite}
   jsonLd={structuredData(site, page)}
 >
   <Fragment slot="head">
@@ -35,4 +47,5 @@ const { site, page } = Astro.props;
     <BlockRenderer blocks={page.blocks} logo={site.logo} />
   </main>
   <SiteFooter footer={page.footer} logo={site.logo} />
+  {PreviewOverlay && <PreviewOverlay />}
 </BaseLayout>

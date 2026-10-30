@@ -6,10 +6,10 @@ interface Props {
 }
 
 const { block } = Astro.props;
-const { anchor, eyebrow, title, meta, sections } = block;
+const { anchor, eyebrow, title, meta, sections, editAttr } = block;
 ---
 
-<article id={anchor} class="rt">
+<article id={anchor} class="rt" data-sanity={editAttr}>
   {eyebrow && <div class="ui-eyebrow">{eyebrow}</div>}
   <h1 class="rt__title">{title}</h1>
   {meta && <div class="rt__meta">{meta}</div>}
