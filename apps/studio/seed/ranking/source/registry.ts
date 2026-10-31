@@ -2,7 +2,7 @@
  * Registry sample data of ranking.ec (awards, editions, results), from the prototypes.
  * Fictitious: replaced by the editors' records in Sanity (stage 3).
  */
-import type { MedalLevel } from "@microsites/ui/editorial";
+import type { MedalLevel } from "./types";
 
 export type AwardType = "ranking" | "premio" | "certificacion";
 

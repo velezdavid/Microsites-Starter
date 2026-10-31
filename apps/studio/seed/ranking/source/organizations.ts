@@ -2,7 +2,7 @@
  * Directory sample data of ranking.ec (organizations), from the prototypes.
  * Counts and "last recognition" are sample values: in Sanity they come from the registry.
  */
-import type { MedalLevel } from "@microsites/ui/editorial";
+import type { MedalLevel } from "./types";
 import { award, EDITIONS, resultLabel, slugify, TYPE_LABEL } from "./registry";
 
 export interface Recognition {

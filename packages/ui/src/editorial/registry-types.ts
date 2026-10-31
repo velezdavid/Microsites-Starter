@@ -486,16 +486,16 @@ export interface EdDocPageBlock {
 
 /** Long-form feature (sponsored reports): full-bleed photo and a centered column. */
 export type EdFeatureNode =
-  | { _type: "p"; text: string; dropCap?: boolean; closing?: boolean }
+  | { _type: "p"; text: string; html?: string; dropCap?: boolean; closing?: boolean }
   | { _type: "h2"; text: string }
   | { _type: "pullQuote"; text: string; author?: string; role?: string }
-  | { _type: "imagePair"; images: { label: string; caption?: string; ratio: string }[]; weights: [number, number] }
+  | { _type: "imagePair"; images: { label: string; caption?: string; ratio: string; src?: string; alt?: string }[]; weights: [number, number] }
   | { _type: "recordList"; title: string; more?: EdLink; items: { year: string; award: string; level: MedalLevel; result: string; href?: string }[] }
   | { _type: "sponsor"; label: string; logo: string; note: string };
 
 export interface EdFeatureArticleBlock {
   _type: "edFeatureArticle";
-  image: { label: string; caption?: string; credit?: string };
+  image: { label: string; caption?: string; credit?: string; src?: string; alt?: string };
   eyebrow: string;
   title: string;
   highlight?: string;

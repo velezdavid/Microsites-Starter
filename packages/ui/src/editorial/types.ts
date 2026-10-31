@@ -151,7 +151,8 @@ export interface EdFigureBlock {
 }
 
 export type ArticleBodyNode =
-  | { _type: "p"; text: string }
+  /** `html`: inline markup (bold, links) rendered instead of `text` when present. */
+  | { _type: "p"; text: string; html?: string }
   | { _type: "h2"; text: string }
   | { _type: "pullQuote"; text: string; author?: string; role?: string }
   | { _type: "image"; image: EdImage; ratio?: string }

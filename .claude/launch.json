@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "studio-ranking-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "set SANITY_STUDIO_DATASET=ranking-dev&& npm run dev --workspace=studio -- --port 3333"],
+      "port": 3333
+    },
+    {
+      "name": "web-ranking-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set PUBLIC_SANITY_DATASET=ranking-dev&& set SITE_SLUG=ranking&& set SITE_TEMPLATE=editorial&& npm run dev --workspace=web -- --port 4332"
+      ],
+      "port": 4332
+    },
+    {
+      "name": "web-dist-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4340", "--directory", "apps/web/dist"],
+      "port": 4340
+    }
+  ]
+}

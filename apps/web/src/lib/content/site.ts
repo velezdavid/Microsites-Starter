@@ -162,7 +162,12 @@ export function getSite({ preview = false } = {}): Promise<SiteDefinition> {
   if (!slug) throw new Error("Missing SITE_SLUG. Set it in apps/web/.env.");
   // Static port of a new microsite (content in code, before its Sanity schemas exist).
   if (import.meta.env.SITE_LOCAL_DATA === "true") return import("../../sites/local").then((m) => m.getLocalSite(slug));
-  if (import.meta.env.DEV || isPreviewSite) return fetchSite(slug, preview);
-  cached ??= fetchSite(slug, false);
+  // Editorial sites (news + registry) have their own content model.
+  const load =
+    import.meta.env.SITE_TEMPLATE === "editorial"
+      ? (s: string, p: boolean) => import("./editorial/site").then((m) => m.fetchEditorialSite(s, p))
+      : fetchSite;
+  if (import.meta.env.DEV || isPreviewSite) return load(slug, preview);
+  cached ??= load(slug, false);
   return cached;
 }

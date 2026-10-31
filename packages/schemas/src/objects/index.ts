@@ -143,14 +143,25 @@ export const navMenu = defineType({
 
 /* ---------- Brand ---------- */
 
+const COLOR = /^(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\))$/;
+
 const color = (name: string, title: string, description?: string) =>
   defineField({
     name,
     title,
     description,
     type: "string",
-    validation: (rule) =>
-      rule.required().regex(/^(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\))$/, { name: "color" }).error("Usa #RRGGBB o rgba(…)"),
+    validation: (rule) => rule.required().regex(COLOR, { name: "color" }).error("Usa #RRGGBB o rgba(…)"),
+  });
+
+/** Token that the site may leave empty (the components fall back to another token). */
+const optionalColor = (name: string, title: string, description?: string) =>
+  defineField({
+    name,
+    title,
+    description,
+    type: "string",
+    validation: (rule) => rule.regex(COLOR, { name: "color" }).error("Usa #RRGGBB o rgba(…)"),
   });
 
 export const theme = defineType({
@@ -175,6 +186,8 @@ export const theme = defineType({
     color("line", "Bordes"),
     color("lineSoft", "Bordes suaves"),
     color("placeholder", "Placeholder de formularios"),
+    optionalColor("accentText", "Acento para texto pequeño", "Opcional. Versión del acento con contraste AA sobre el fondo; vacío = Acento."),
+    optionalColor("premium", "Acento secundario", "Opcional. P. ej. dorado para distinciones."),
     defineField({
       name: "fontDisplay",
       title: "Fuente de titulares",

@@ -2,7 +2,7 @@
  * Sample content of ranking.ec, taken from the design prototypes (reference/ranking).
  * Fictitious data: it will move to Sanity in stage 3, where the editors replace it.
  */
-import type { ArticleBodyNode, ArticleTeaser, EdFeatureNode, EdImage, MedalLevel } from "@microsites/ui/editorial";
+import type { ArticleBodyNode, ArticleTeaser, EdFeatureNode, EdImage, MedalLevel } from "./types";
 
 export type ArticleType =
   | "noticia"

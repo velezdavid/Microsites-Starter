@@ -19,7 +19,7 @@ for (const n of body) {
 ---
 
 <div class="fa">
-  <ImageFrame image={{ label: image.label }} ratio="16/7" />
+  <ImageFrame image={{ label: image.label, src: image.src, alt: image.alt }} ratio="16/7" />
   {
     (image.caption || image.credit) && (
       <p class="fa__caption">
@@ -38,7 +38,7 @@ for (const n of body) {
           n._type === "imagePair" ? (
             <div class="fa__pair" data-r="stack" style={`grid-template-columns:minmax(0,${n.weights[0]}fr) minmax(0,${n.weights[1]}fr)`}>
               {n.images.map((im) => (
-                <ImageFrame image={{ label: im.label, caption: im.caption }} ratio={im.ratio} />
+                <ImageFrame image={{ label: im.label, caption: im.caption, src: im.src, alt: im.alt }} ratio={im.ratio} />
               ))}
             </div>
           ) : null,
@@ -54,6 +54,8 @@ for (const n of body) {
                     <p class="fa__p">
                       <span class="fa__drop">{n.text.charAt(0)}</span> {n.text.slice(1).trimStart()}
                     </p>
+                  ) : n.html ? (
+                    <p class:list={["fa__p", { "fa__p--closing": n.closing }]} set:html={n.html} />
                   ) : (
                     <p class:list={["fa__p", { "fa__p--closing": n.closing }]}>{n.text}</p>
                   );

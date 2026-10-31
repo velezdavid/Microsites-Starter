@@ -2,7 +2,7 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "@microsites/schemas";
-import { siteTemplates, structure } from "./structure";
+import { siteScopedTypes, siteTemplates, structure } from "./structure";
 import { previewTool } from "./presentation";
 import { previewSites } from "./preview-sites";
 
@@ -27,6 +27,6 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     // Site-scoped documents are created from each site's lists, with the site preset.
-    templates: (prev) => [...prev.filter((t) => !["page", "category", "item"].includes(t.id)), ...siteTemplates],
+    templates: (prev) => [...prev.filter((t) => !siteScopedTypes.includes(t.id)), ...siteTemplates],
   },
 });

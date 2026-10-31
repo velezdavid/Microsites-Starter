@@ -1,4 +1,4 @@
-import type { EdNewsletterBlock } from "@microsites/ui/editorial";
+import type { EdNewsletterBlock } from "./types";
 
 /** Newsletter band shown before the footer of every page. */
 export const newsletterBlock = (text: string): EdNewsletterBlock => ({

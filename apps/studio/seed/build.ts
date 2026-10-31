@@ -8,8 +8,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { clean, type SanityDoc } from "./lib";
 import { documents as mediaudience } from "./mediaudience/documents";
+import { documents as ranking } from "./ranking/documents";
 
-const SEEDS: Record<string, SanityDoc[]> = { mediaudience };
+const SEEDS: Record<string, SanityDoc[]> = { mediaudience, ranking };
 
 const slug = process.argv[2];
 const docs = slug ? SEEDS[slug] : undefined;

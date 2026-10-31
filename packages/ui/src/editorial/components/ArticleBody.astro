@@ -30,7 +30,7 @@ const { keyFacts, body, tags } = Astro.props;
       body.map((n) => {
         switch (n._type) {
           case "p":
-            return <p class="ab__p">{n.text}</p>;
+            return n.html ? <p class="ab__p" set:html={n.html} /> : <p class="ab__p">{n.text}</p>;
           case "h2":
             return <h2 class="ab__h2">{n.text}</h2>;
           case "pullQuote":

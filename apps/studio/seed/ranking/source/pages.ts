@@ -1,5 +1,5 @@
-import type { EdForm, EditorialBlock } from "@microsites/ui/editorial";
-import type { ListingPage } from "./actualidad";
+import type { EdForm, EditorialBlock } from "./types";
+import type { ListingPage } from "./types";
 import { newsletterBlock } from "./shared";
 
 const SECTORS = [
@@ -20,7 +20,7 @@ const SECTORS = [
 ];
 
 /** Newsletter issues (archive, sample). */
-const ISSUES: [number, string, string][] = [
+export const ISSUES: [number, string, string][] = [
   [42, "26 oct 2026", "La banca vuelve al top 10"],
   [41, "19 oct 2026", "Premios Verdes: quién ganó y por qué"],
   [40, "12 oct 2026", "Merco Talento cambia de líder"],
@@ -107,9 +107,9 @@ type Doc = {
   sections: [string, string[], [string, string][]?][];
 };
 
-const UPDATED = "30 de octubre de 2026";
+export const UPDATED = "30 de octubre de 2026";
 
-const DOCS: Doc[] = [
+export const DOCS: Doc[] = [
   {
     slug: "quienes-somos",
     label: "Quiénes somos",
@@ -240,7 +240,7 @@ const contact = (corporate = false) =>
     { name: "email", label: corporate ? "Correo corporativo" : "Correo electrónico", type: "email" as const, required: true, placeholder: "nombre@empresa.com", error: "Escribe un correo válido." },
   ];
 
-const FORMS: { slug: string; label: string; lead: string; form: EdForm }[] = [
+export const FORMS: { slug: string; label: string; lead: string; form: EdForm }[] = [
   {
     slug: "envia-tu-informacion",
     label: "Envía tu información",
