@@ -1,0 +1,52 @@
+---
+interface Props {
+  author?: string;
+  role?: string;
+  date?: string;
+  readTime?: string;
+  /** Label before the author ("Por"). */
+  byLabel?: string;
+}
+
+const { author, role, date, readTime, byLabel = "Por" } = Astro.props;
+const parts = [date, readTime].filter(Boolean);
+---
+
+<div class="byline">
+  {
+    author && (
+      <span>
+        {byLabel} <strong>{author}</strong>
+        {role && <span>, {role}</span>}
+      </span>
+    )
+  }
+  {
+    parts.map((p) => (
+      <span class="byline__part">
+        <span aria-hidden="true">·</span>
+        {p}
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .byline strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .byline__part {
+    display: inline-flex;
+    gap: 10px;
+  }
+</style>

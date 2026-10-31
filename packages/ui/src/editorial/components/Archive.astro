@@ -1,0 +1,143 @@
+---
+import type { EdArchiveBlock } from "../registry-types";
+
+type Props = Omit<EdArchiveBlock, "_type">;
+
+const { eyebrow, title, searchPlaceholder, items, empty, more } = Astro.props;
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+---
+
+<section class="ar" data-ed-archive>
+  <div class="ar__inner">
+    <div class="ar__head ed-heading2">
+      <span class="ed-heading2__eyebrow">{eyebrow}</span>
+      <h2 class="ed-heading2__title">{title}</h2>
+    </div>
+    <label class="ed-visually-hidden" for="ar-search">{searchPlaceholder}</label>
+    <input id="ar-search" class="ar__search" type="search" placeholder={searchPlaceholder} autocomplete="off" />
+    <div class="ar__grid">
+      {
+        items.map((a) => {
+          const Tag = a.href ? "a" : "div";
+          return (
+            <Tag href={a.href} class="ar__item" data-text={norm(a.title)}>
+              <span class="ar__num">{a.number}</span>
+              <span class="ar__text">
+                <span class="ar__title">{a.title}</span>
+                <span class="ar__date">{a.date}</span>
+              </span>
+            </Tag>
+          );
+        })
+      }
+      <p class="ar__empty" hidden>{empty}</p>
+    </div>
+    {more && <a class="ar__more" href={more.href}>{more.label} ↗</a>}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ed-archive]").forEach((box) => {
+    const input = box.querySelector<HTMLInputElement>(".ar__search")!;
+    const items = [...box.querySelectorAll<HTMLElement>(".ar__item")];
+    const empty = box.querySelector<HTMLElement>(".ar__empty")!;
+    input.addEventListener("input", () => {
+      const q = input.value
+        .trim()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .toLowerCase();
+      let shown = 0;
+      items.forEach((i) => {
+        i.hidden = !(i.dataset.text ?? "").includes(q);
+        if (!i.hidden) shown++;
+      });
+      empty.hidden = shown > 0;
+    });
+  });
+</script>
+
+<style>
+  .ar {
+    background: var(--sunken);
+    margin-top: 80px;
+    padding: 56px var(--gutter);
+  }
+  .ar__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ar__head {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+  }
+  .ar__search {
+    max-width: 460px;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: #fff;
+    font-size: 14px;
+    outline: none;
+    color: var(--ink);
+  }
+  .ar__search:focus {
+    border-color: var(--ink);
+  }
+  .ar__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(170px, calc(100% / 2 - 32px)), 1fr));
+    column-gap: 1px;
+    row-gap: 36px;
+    background: #fff;
+  }
+  .ar__item {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 14px;
+    align-items: baseline;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ar__item[hidden] {
+    display: none;
+  }
+  .ar__num {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--ink-muted);
+  }
+  .ar__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ar__title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .ar__date {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .ar__empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 18px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .ar__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

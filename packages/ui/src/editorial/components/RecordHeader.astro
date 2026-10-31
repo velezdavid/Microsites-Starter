@@ -1,0 +1,132 @@
+---
+import type { EdRecordHeaderBlock } from "../registry-types";
+
+type Props = Omit<EdRecordHeaderBlock, "_type">;
+
+const { eyebrow, lines, highlight, rule, text, facts, link, asideWidth = 380, alignEnd = false, spaceBottom = 0, titleSize = "lg" } = Astro.props;
+
+/** Splits a line around the highlighted text. */
+const parts = (line: string): [string, string, string] => {
+  const i = highlight ? line.indexOf(highlight) : -1;
+  return i >= 0 && highlight ? [line.slice(0, i), highlight, line.slice(i + highlight.length)] : [line, "", ""];
+};
+---
+
+<div
+  class:list={["rh", { "rh--end": alignEnd, "rh--md": titleSize === "md" }]}
+  data-r="stack"
+  style={`grid-template-columns:minmax(0,1fr) ${asideWidth}px;padding-bottom:${spaceBottom}px`}
+>
+  <div class="rh__main">
+    <span class="rh__eyebrow">{eyebrow}</span>
+    <h1 class="rh__title">
+      {
+        lines.map((l, i) => {
+          const [a, b, c] = parts(l);
+          return (
+            <>
+              {i > 0 && <br />}
+              {a}
+              {b && <span class="rh__hl">{b}</span>}
+              {c}
+            </>
+          );
+        })
+      }
+    </h1>
+    {rule && <div class="rh__rule" aria-hidden="true"></div>}
+    {text && <p class="rh__text">{text}</p>}
+  </div>
+  <div class="rh__facts">
+    {
+      facts.map((f) => (
+        <div class="rh__fact">
+          <span class="rh__label">{f.label}</span>
+          <span class="rh__value">{f.value}</span>
+        </div>
+      ))
+    }
+    {link && <a class="rh__link" href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel="noopener">{link.label} ↗</a>}
+  </div>
+</div>
+
+<style>
+  .rh {
+    padding: 28px var(--gutter) 0;
+    display: grid;
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: start;
+  }
+  .rh--end {
+    align-items: end;
+  }
+  .rh__main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .rh__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .rh__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(54px, 8.75vw, 112px);
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+  .rh--md .rh__title {
+    font-size: clamp(46px, 7.5vw, 96px);
+    line-height: 0.88;
+  }
+  .rh__hl {
+    color: var(--accent);
+  }
+  .rh__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .rh__text {
+    margin: 0;
+    max-width: 640px;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  .rh__facts {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--ink);
+  }
+  .rh__fact {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .rh--end .rh__fact {
+    padding: 10px 0;
+  }
+  .rh__label {
+    color: var(--ink-muted);
+  }
+  .rh__value {
+    font-weight: 600;
+    text-align: right;
+  }
+  .rh__link {
+    padding-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

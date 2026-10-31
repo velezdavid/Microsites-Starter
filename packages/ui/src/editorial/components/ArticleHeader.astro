@@ -1,0 +1,139 @@
+---
+import type { EdArticleHeaderBlock } from "../types";
+
+type Props = Omit<EdArticleHeaderBlock, "_type">;
+
+const { eyebrow, title, highlight, dek, author, meta, shareUrl, centered = false } = Astro.props;
+const i = highlight ? title.indexOf(highlight) : -1;
+const [before, hl, after] = i >= 0 && highlight ? [title.slice(0, i), highlight, title.slice(i + highlight.length)] : [title, "", ""];
+const url = encodeURIComponent(shareUrl);
+const text = encodeURIComponent(title);
+const share = [
+  { label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
+  { label: "X", href: `https://twitter.com/intent/tweet?url=${url}&text=${text}` },
+  { label: "WhatsApp", href: `https://wa.me/?text=${text}%20${url}` },
+].filter((s) => !centered || s.label !== "WhatsApp");
+---
+
+<div class:list={["ah", { "ah--centered": centered }]} data-r="stack">
+  <div></div>
+  <div class="ah__main">
+    <span class="ah__eyebrow">{eyebrow}</span>
+    <h1 class="ah__title">{before}{hl && <span class="ah__hl">{hl}</span>}{after}</h1>
+    {dek && <p class="ah__dek">{dek}</p>}
+    <div class="ah__meta">
+      <span><strong>{author}</strong> <span class="ah__muted">· {meta}</span></span>
+      <span class="ah__share">
+        {
+          share.map((s) => (
+            <a href={s.href} target="_blank" rel="noopener noreferrer">
+              {s.label}
+            </a>
+          ))
+        }
+        <button type="button" data-ed-copy={shareUrl} data-done="Copiado">Copiar enlace</button>
+      </span>
+    </div>
+  </div>
+  <div></div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-ed-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.edCopy ?? location.href);
+        const label = btn.textContent;
+        btn.textContent = btn.dataset.done ?? label;
+        setTimeout(() => (btn.textContent = label), 2000);
+      } catch {
+        /* Clipboard not available: nothing to do. */
+      }
+    });
+  });
+</script>
+
+<style>
+  .ah {
+    padding: 28px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 880px) minmax(0, 1fr);
+    gap: clamp(20px, 4.38vw, 56px);
+  }
+  .ah--centered {
+    grid-template-columns: minmax(0, 1fr) 680px minmax(0, 1fr);
+    gap: 0;
+  }
+  .ah--centered .ah__title {
+    font-size: clamp(40px, 6.56vw, 84px);
+  }
+  .ah__main {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .ah__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .ah__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(42px, 6.88vw, 88px);
+    line-height: 0.9;
+    text-wrap: balance;
+    text-transform: uppercase;
+  }
+  .ah__hl {
+    color: var(--accent);
+  }
+  .ah__dek {
+    margin: 0;
+    max-width: 760px;
+    font-size: 21px;
+    line-height: 1.5;
+  }
+  .ah__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+  .ah__meta strong {
+    font-weight: 600;
+  }
+  .ah__muted {
+    color: var(--ink-muted);
+  }
+  .ah__share {
+    display: flex;
+    gap: 16px;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .ah__share button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .ah__share button:hover {
+    color: var(--accent-text);
+  }
+</style>

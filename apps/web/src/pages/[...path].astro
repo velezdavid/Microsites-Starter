@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
-import SitePage from "../components/SitePage.astro";
 import { isPreviewRequest } from "../lib/content/preview";
+import { getSitePage } from "../lib/content/template";
 import { getSite } from "../lib/content/site";
 
 // Public build: one static page per path. Preview site (rendered on demand): resolved per request.
@@ -10,6 +10,7 @@ export const getStaticPaths = (async () => {
   return site.pages.filter((p) => p.path !== "").map((page) => ({ params: { path: page.path } }));
 }) satisfies GetStaticPaths;
 
+const SitePage = await getSitePage();
 const preview = isPreviewRequest(Astro.cookies);
 const site = await getSite({ preview });
 const path = decodeURIComponent(Astro.params.path ?? "");

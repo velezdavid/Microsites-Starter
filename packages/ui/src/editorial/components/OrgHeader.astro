@@ -1,0 +1,196 @@
+---
+import type { EdOrgHeaderBlock } from "../registry-types";
+import MedalBadge from "./MedalBadge.astro";
+
+type Props = Omit<EdOrgHeaderBlock, "_type">;
+
+const { eyebrow, verified, name, meta, links, medalsTitle, medalsRange, medals } = Astro.props;
+---
+
+<div class="oh">
+  <div class="oh__id">
+    <span class="oh__logo" aria-hidden="true">Logo</span>
+    <div class="oh__text">
+      <span class="oh__tags">
+        <span class="oh__eyebrow">{eyebrow}</span>
+        {verified && <span class="oh__verified">✓ {verified}</span>}
+      </span>
+      <h1 class="oh__name">{name}</h1>
+      <span class="oh__meta">
+        <span class="oh__muted">{meta}</span>
+        {
+          links.map((l) => (
+            <a href={l.href} target="_blank" rel="noopener noreferrer">
+              {l.label} ↗
+            </a>
+          ))
+        }
+      </span>
+    </div>
+  </div>
+  <div class="oh__medals">
+    <span class="oh__medals-head">
+      <span class="oh__medals-title">{medalsTitle}</span>
+      <span class="oh__muted oh__range">{medalsRange}</span>
+    </span>
+    <div class="oh__medal-grid">
+      {
+        medals.map((m) => (
+          <div class="oh__medal">
+            <span class="oh__count">{m.count}</span>
+            <span class="oh__badge">
+              <MedalBadge level={m.level} label={m.label} />
+            </span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .oh {
+    padding: 28px var(--gutter) 40px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(20px, 3.75vw, 48px);
+    align-items: end;
+  }
+  .oh__id {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+  }
+  .oh__logo {
+    width: 130px;
+    height: 130px;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .oh__text {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .oh__tags {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .oh__eyebrow {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .oh__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    border: 1px solid var(--ink);
+    padding: 2px 8px;
+    text-transform: uppercase;
+  }
+  .oh__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(38px, 6.25vw, 80px);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .oh__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-size: 14px;
+  }
+  .oh__meta a {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .oh__muted {
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .oh__medals {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 380px;
+  }
+  .oh__medals-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .oh__medals-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+  .oh__range {
+    font-size: 12px;
+  }
+  .oh__medal-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .oh__medal {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 8px;
+    border-left: 1px solid var(--line);
+    min-width: 0;
+    overflow: hidden;
+  }
+  .oh__medal:first-child {
+    border-left: 0;
+  }
+  .oh__count {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.44vw, 44px);
+    line-height: 0.9;
+  }
+  .oh__badge :global(.medal) {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  @container ed (max-width: 960px) {
+    .oh {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @container ed (max-width: 600px) {
+    .oh__id {
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 16px;
+    }
+    .oh__logo {
+      width: 72px;
+      height: 72px;
+    }
+    .oh__muted {
+      white-space: normal;
+    }
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+import type { EdMovementListBlock } from "../types";
+
+type Props = Omit<EdMovementListBlock, "_type">;
+
+const { title, items, more } = Astro.props;
+---
+
+<div class="mv">
+  <span class="mv__title">{title}</span>
+  {
+    items.map((m) => {
+      const Tag = m.href ? "a" : "div";
+      return (
+        <Tag href={m.href} class="mv__item">
+          <span class="mv__avatar" aria-hidden="true">{m.initials}</span>
+          <span class="mv__text">
+            <span class="mv__name">{m.name}</span>
+            <span class="mv__role">{m.role}</span>
+            <span class="mv__org">{m.organization}</span>
+          </span>
+        </Tag>
+      );
+    })
+  }
+  {more && <a class="mv__more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .mv {
+    display: flex;
+    flex-direction: column;
+  }
+  .mv__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 8px;
+  }
+  .mv__item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .mv__avatar {
+    width: 56px;
+    height: 56px;
+    background: var(--sunken);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--ink-muted);
+  }
+  .mv__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mv__name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mv__role {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .mv__org {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .mv__more {
+    padding-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

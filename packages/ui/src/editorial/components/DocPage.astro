@@ -1,0 +1,230 @@
+---
+import type { EdDocPageBlock } from "../registry-types";
+import FormFields from "./FormFields.astro";
+
+type Props = Omit<EdDocPageBlock, "_type">;
+
+const { menuTitle, menu, eyebrow, title, lead, sections, form, footnote, tocTitle } = Astro.props;
+---
+
+<div class="dp" data-r="stack">
+  <nav class="dp__menu" aria-label={menuTitle}>
+    <span class="dp__menu-title">{menuTitle}</span>
+    {
+      menu.map((m) => (
+        <a href={m.href} class:list={["dp__menu-item", { "dp__menu-item--current": m.current }]} aria-current={m.current ? "page" : undefined}>
+          <span class="dp__bar" aria-hidden="true" />
+          {m.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <article class="dp__body">
+    <span class="dp__eyebrow">{eyebrow}</span>
+    <h1 class="dp__title">{title}</h1>
+    <div class="dp__rule" aria-hidden="true"></div>
+    {lead && <p class="dp__lead">{lead}</p>}
+    {
+      sections.map((s) => (
+        <section id={s.id} class="dp__section">
+          <h2 class="dp__h2">{s.title}</h2>
+          {s.paragraphs.map((t) => (
+            <p class="dp__p">{t}</p>
+          ))}
+          {s.rows && (
+            <div class="dp__rows">
+              {s.rows.map((r) => (
+                <div class="dp__row" data-r="stack">
+                  <span class="dp__row-label">{r.label}</span>
+                  <span>{r.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ))
+    }
+    {
+      form && (
+        <div class="dp__form">
+          <FormFields form={form} />
+        </div>
+      )
+    }
+    {
+      footnote && (
+        <div class="dp__foot">
+          {footnote.text}
+          {footnote.link && (
+            <>
+              {" "}
+              <a href={footnote.link.href}>{footnote.link.label}</a>.
+            </>
+          )}
+        </div>
+      )
+    }
+  </article>
+
+  <aside class="dp__toc">
+    {
+      tocTitle && sections.length > 0 && (
+        <>
+          <span class="dp__toc-title">{tocTitle}</span>
+          {sections.map((s, i) => (
+            <a href={`#${s.id}`} class="dp__toc-item">
+              <span class="dp__toc-num">{String(i + 1).padStart(2, "0")}</span>
+              <span>{s.title}</span>
+            </a>
+          ))}
+        </>
+      )
+    }
+  </aside>
+</div>
+
+<style>
+  .dp {
+    padding: 40px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 680px) minmax(0, 1fr);
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: start;
+  }
+  .dp__menu,
+  .dp__toc {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--ink);
+  }
+  .dp__toc:empty {
+    border-top: 0;
+  }
+  .dp__menu-title,
+  .dp__toc-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    padding: 10px 0;
+    text-transform: uppercase;
+  }
+  .dp__toc-title {
+    color: var(--accent-text);
+  }
+  .dp__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .dp__bar {
+    width: 3px;
+    height: 16px;
+    background: transparent;
+  }
+  .dp__menu-item--current {
+    font-weight: 700;
+    color: var(--accent-text);
+  }
+  .dp__menu-item--current .dp__bar {
+    background: var(--accent);
+  }
+  .dp__body {
+    display: flex;
+    flex-direction: column;
+  }
+  .dp__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    margin-bottom: 22px;
+    text-transform: uppercase;
+  }
+  .dp__title {
+    margin: 0 0 24px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(42px, 6.88vw, 88px);
+    line-height: 0.9;
+    text-wrap: balance;
+    text-transform: uppercase;
+  }
+  .dp__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+    margin-bottom: 24px;
+  }
+  .dp__lead {
+    margin: 0 0 16px;
+    font-size: 21px;
+    line-height: 1.5;
+  }
+  .dp__section {
+    display: flex;
+    flex-direction: column;
+  }
+  .dp__h2 {
+    margin: 40px 0 16px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+  .dp__p {
+    margin: 0 0 20px;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+  .dp__rows {
+    margin: 4px 0 20px;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+  }
+  .dp__row {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .dp__row-label {
+    font-weight: 700;
+  }
+  .dp__form {
+    margin-top: 24px;
+    background: var(--sunken);
+    padding: clamp(16px, 2.81vw, 36px);
+  }
+  .dp__foot {
+    margin-top: 32px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .dp__foot a {
+    font-weight: 600;
+  }
+  .dp__toc-item {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    padding: 11px 0;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .dp__toc-num {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--ink-muted);
+  }
+</style>

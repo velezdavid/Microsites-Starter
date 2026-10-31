@@ -1,0 +1,266 @@
+---
+import type { EdColumnsBlock, EditorialBlock } from "../types";
+import ArticleBody from "./ArticleBody.astro";
+import ArticleCard from "./ArticleCard.astro";
+import ArticleGrid from "./ArticleGrid.astro";
+import ArticleHeader from "./ArticleHeader.astro";
+import ArticleList from "./ArticleList.astro";
+import Breadcrumb from "./Breadcrumb.astro";
+import DeadlineList from "./DeadlineList.astro";
+import EventList from "./EventList.astro";
+import Figure from "./Figure.astro";
+import Mentions from "./Mentions.astro";
+import MovementList from "./MovementList.astro";
+import Newsletter from "./Newsletter.astro";
+import OpinionList from "./OpinionList.astro";
+import PageIntro from "./PageIntro.astro";
+import Pagination from "./Pagination.astro";
+import RankingSnapshot from "./RankingSnapshot.astro";
+import ResultList from "./ResultList.astro";
+import SectionHeader from "./SectionHeader.astro";
+import Archive from "./Archive.astro";
+import DocPage from "./DocPage.astro";
+import FeatureArticle from "./FeatureArticle.astro";
+import NewsletterHero from "./NewsletterHero.astro";
+import EventBits from "./EventBits.astro";
+import Agenda from "./Agenda.astro";
+import CoverageList from "./CoverageList.astro";
+import EventFeature from "./EventFeature.astro";
+import EventHero from "./EventHero.astro";
+import AboutBox from "./AboutBox.astro";
+import Directory from "./Directory.astro";
+import DirectoryIntro from "./DirectoryIntro.astro";
+import OrgHeader from "./OrgHeader.astro";
+import Positions from "./Positions.astro";
+import RankedList from "./RankedList.astro";
+import RecentList from "./RecentList.astro";
+import Recognitions from "./Recognitions.astro";
+import SectorCounts from "./SectorCounts.astro";
+import AgendaPanel from "./AgendaPanel.astro";
+import AwardTable from "./AwardTable.astro";
+import CardGrid from "./CardGrid.astro";
+import CtaBox from "./CtaBox.astro";
+import EditionCards from "./EditionCards.astro";
+import EditionsTable from "./EditionsTable.astro";
+import Heatmap from "./Heatmap.astro";
+import HubIntro from "./HubIntro.astro";
+import LabeledList from "./LabeledList.astro";
+import LatestEdition from "./LatestEdition.astro";
+import LeaderList from "./LeaderList.astro";
+import NewsList from "./NewsList.astro";
+import NumberedColumns from "./NumberedColumns.astro";
+import Organizer from "./Organizer.astro";
+import Podium from "./Podium.astro";
+import RecordHeader from "./RecordHeader.astro";
+import ResultsTable from "./ResultsTable.astro";
+import TabBar from "./TabBar.astro";
+import Timeline from "./Timeline.astro";
+import Weights from "./Weights.astro";
+
+interface Props {
+  blocks: EditorialBlock[];
+  /** Blocks inside a column: no page gutter or row spacing. */
+  nested?: boolean;
+}
+
+const { blocks, nested = false } = Astro.props;
+
+const css = (v: number | string) => (typeof v === "number" ? `${v}px` : v);
+// "300px" stays a fixed track; "8fr" becomes minmax(0,8fr) so long words never overflow.
+const track = (w = "1fr") => (/^\d+(\.\d+)?fr$/.test(w) ? `minmax(0,${w})` : w);
+
+const columnsStyle = (b: EdColumnsBlock) => {
+  const tracks = b.autoFit
+    ? `repeat(auto-fit,minmax(max(170px,calc(100% / ${b.columns.length} - 32px)),1fr))`
+    : b.columns.map((c) => track(c.width)).join(b.dividers ? " 1px " : " ");
+  return [`grid-template-columns:${tracks}`, `gap:${css(b.gap ?? 32)}`, b.alignTop ? "align-items:start" : ""].filter(Boolean).join(";");
+};
+---
+
+{
+  blocks.map((b) => {
+    switch (b._type) {
+      case "edColumns":
+        return (
+          <section
+            id={b.anchor}
+            class:list={["row", { "row--band": b.band, "row--nested": nested }]}
+            style={b.spaceTop != null ? `--space-top:${b.spaceTop}px` : undefined}
+          >
+            <div class="row__grid" data-r={b.autoFit ? undefined : "stack"} style={columnsStyle(b)}>
+              {b.columns.map((c, i) => {
+                const Col = c.aside ? "aside" : "div";
+                return (
+                  <>
+                    {b.dividers && i > 0 && <div class="row__divider" data-r="div" aria-hidden="true" />}
+                    <Col class="row__col" style={`gap:${css(c.gap ?? 28)}`}>
+                      <Astro.self blocks={c.blocks} nested />
+                    </Col>
+                  </>
+                );
+              })}
+            </div>
+          </section>
+        );
+      case "edSectionHeader":
+        return <SectionHeader {...b} />;
+      case "edArticleCard":
+        return <ArticleCard article={b.article} variant={b.variant} showImage={b.showImage} ratio={b.ratio} index={b.index} headingLevel={b.headingLevel} />;
+      case "edArticleGrid":
+        return <ArticleGrid {...b} />;
+      case "edArticleList":
+        return <ArticleList {...b} />;
+      case "edResultList":
+        return <ResultList {...b} />;
+      case "edRankingSnapshot":
+        return <RankingSnapshot {...b} />;
+      case "edDeadlineList":
+        return <DeadlineList {...b} />;
+      case "edEventList":
+        return <EventList {...b} />;
+      case "edOpinionList":
+        return <OpinionList {...b} />;
+      case "edPageIntro":
+        return <PageIntro {...b} />;
+      case "edPagination":
+        return <Pagination {...b} />;
+      case "edMovementList":
+        return <MovementList {...b} />;
+      case "edBreadcrumb":
+        return <Breadcrumb {...b} />;
+      case "edArticleHeader":
+        return <ArticleHeader {...b} />;
+      case "edFigure":
+        return <Figure {...b} />;
+      case "edArticleBody":
+        return (
+          <ArticleBody keyFacts={b.keyFacts} body={b.body} tags={b.tags}>
+            {b.aside && <Astro.self slot="aside" blocks={b.aside} nested />}
+          </ArticleBody>
+        );
+      case "edMentions":
+        return <Mentions {...b} />;
+      case "edAgendaPanel":
+        return <AgendaPanel {...b} />;
+      case "edAwardTable":
+        return <AwardTable {...b} />;
+      case "edCardGrid":
+        return <CardGrid {...b} />;
+      case "edCtaBox":
+        return <CtaBox {...b} />;
+      case "edEditionCards":
+        return <EditionCards {...b} />;
+      case "edEditionsTable":
+        return <EditionsTable {...b} />;
+      case "edHeatmap":
+        return <Heatmap {...b} />;
+      case "edHubIntro":
+        return <HubIntro {...b} />;
+      case "edLabeledList":
+        return <LabeledList {...b} />;
+      case "edLatestEdition":
+        return <LatestEdition {...b} />;
+      case "edLeaderList":
+        return <LeaderList {...b} />;
+      case "edNewsList":
+        return <NewsList {...b} />;
+      case "edNumberedColumns":
+        return <NumberedColumns {...b} />;
+      case "edOrganizer":
+        return <Organizer {...b} />;
+      case "edPodium":
+        return <Podium {...b} />;
+      case "edRecordHeader":
+        return <RecordHeader {...b} />;
+      case "edResultsTable":
+        return <ResultsTable {...b} />;
+      case "edTabBar":
+        return <TabBar {...b} />;
+      case "edTimeline":
+        return <Timeline {...b} />;
+      case "edWeights":
+        return <Weights {...b} />;
+      case "edAboutBox":
+        return <AboutBox {...b} />;
+      case "edDirectory":
+        return <Directory {...b} />;
+      case "edDirectoryIntro":
+        return <DirectoryIntro {...b} />;
+      case "edOrgHeader":
+        return <OrgHeader {...b} />;
+      case "edPositions":
+        return <Positions {...b} />;
+      case "edRankedList":
+        return <RankedList {...b} />;
+      case "edRecentList":
+        return <RecentList {...b} />;
+      case "edRecognitions":
+        return <Recognitions {...b} />;
+      case "edSectorCounts":
+        return <SectorCounts {...b} />;
+      case "edAgenda":
+        return <Agenda {...b} />;
+      case "edCoverageList":
+        return <CoverageList {...b} />;
+      case "edEventFeature":
+        return <EventFeature {...b} />;
+      case "edEventHero":
+        return <EventHero {...b} />;
+      case "edActionBar":
+      case "edStatRow":
+      case "edProgram":
+      case "edVenue":
+      case "edHighlightBox":
+      case "edYearLinks":
+      case "edHeading":
+        return <EventBits block={b} />;
+      case "edArchive":
+        return <Archive {...b} />;
+      case "edDocPage":
+        return <DocPage {...b} />;
+      case "edFeatureArticle":
+        return <FeatureArticle {...b} />;
+      case "edNewsletterHero":
+        return <NewsletterHero {...b} />;
+      case "edNewsletter":
+        return nested ? (
+          <Newsletter {...b} />
+        ) : (
+          <div class="row" style={b.spaceTop != null ? `--space-top:${b.spaceTop}px` : undefined}>
+            <Newsletter {...b} />
+          </div>
+        );
+      default:
+        return null;
+    }
+  })
+}
+
+<style>
+  .row {
+    padding: var(--space-top, 72px) var(--gutter) 0;
+  }
+  .row--nested {
+    padding: 0;
+  }
+  .row--band {
+    background: var(--sunken);
+    margin-top: var(--space-top, 64px);
+    padding: 56px var(--gutter);
+  }
+  .row--nested.row--band {
+    margin-top: 0;
+  }
+  .row__grid {
+    display: grid;
+  }
+  .row__col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .row__divider {
+    background: var(--line);
+    align-self: stretch;
+  }
+</style>

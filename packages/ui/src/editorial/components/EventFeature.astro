@@ -1,0 +1,159 @@
+---
+import type { EdEventFeatureBlock } from "../registry-types";
+import Countdown from "./Countdown.astro";
+
+type Props = Omit<EdEventFeatureBlock, "_type">;
+
+const { eyebrow, title, highlight, text, cta, href, countdown, facts } = Astro.props;
+---
+
+<a href={href} class="ef" data-r="stack">
+  <div class="ef__main">
+    <span class="ef__eyebrow">{eyebrow}</span>
+    <span class="ef__title">
+      {
+        title.map((l, i) => {
+          const at = highlight ? l.indexOf(highlight) : -1;
+          return (
+            <>
+              {i > 0 && <br />}
+              {at >= 0 ? (
+                <>
+                  {l.slice(0, at)}
+                  <span class="ef__hl">{highlight}</span>
+                  {l.slice(at + highlight!.length)}
+                </>
+              ) : (
+                l
+              )}
+            </>
+          );
+        })
+      }
+    </span>
+    <span class="ef__text">{text}</span>
+    <span class="ef__cta">{cta} ↗</span>
+  </div>
+  <div class="ef__divider" data-r="div" aria-hidden="true"></div>
+  <div class="ef__side">
+    <div class="ef__count">
+      <span class="ef__count-label">{countdown.label}</span>
+      <Countdown class="ef__days" date={countdown.date} fallback={countdown.fallback} format="days" />
+      <span class="ef__unit">{countdown.unit}</span>
+    </div>
+    <div class="ef__facts">
+      {
+        facts.map((f) => (
+          <span class="ef__fact">
+            <span class="ef__fact-label">{f.label}</span>
+            <span class="ef__fact-value">{f.value}</span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</a>
+
+<style>
+  .ef {
+    margin: 56px var(--gutter) 0;
+    background: var(--deep);
+    color: #fff;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px 360px;
+    gap: clamp(20px, 3.75vw, 48px);
+    padding: clamp(16px, 3.75vw, 48px);
+  }
+  .ef:hover {
+    color: #fff;
+  }
+  .ef__main {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .ef__eyebrow {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .ef__title {
+    font-family: var(--font-display);
+    font-size: clamp(38px, 6.25vw, 80px);
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+  .ef__hl {
+    color: var(--accent);
+  }
+  .ef__text {
+    max-width: 560px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #d0d0d0;
+  }
+  .ef__cta {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ef:hover .ef__cta {
+    color: var(--accent);
+  }
+  .ef__divider {
+    background: #333;
+  }
+  .ef__side {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .ef__count {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.86;
+  }
+  .ef__count-label {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: #9a9a9a;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .ef :global(.ef__days) {
+    font-family: var(--font-display);
+    font-size: clamp(67px, 10.94vw, 140px);
+    color: var(--accent);
+  }
+  .ef__unit {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .ef__facts {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #333;
+  }
+  .ef__fact {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .ef__fact-label {
+    color: #9a9a9a;
+  }
+  .ef__fact-value {
+    font-weight: 600;
+  }
+</style>

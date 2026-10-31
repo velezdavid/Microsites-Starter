@@ -1,0 +1,82 @@
+---
+import type { EdLeaderListBlock } from "../registry-types";
+
+type Props = Omit<EdLeaderListBlock, "_type">;
+
+const { eyebrow, title, items, more } = Astro.props;
+---
+
+<div class="ll">
+  <div class="ll__head ed-heading2">
+    <span class="ed-heading2__eyebrow">{eyebrow}</span>
+    <h2 class="ed-heading2__title">{title}</h2>
+  </div>
+  <div class="ll__list">
+    {
+      items.map((c) => (
+        <a href={c.href} class="ll__row">
+          <span class="ll__text">
+            <span class="ll__name">{c.name}</span>
+            <span class="ll__leader">
+              1.º <strong>{c.leader}</strong>
+            </span>
+          </span>
+          <span class="ll__edition">{c.edition}</span>
+        </a>
+      ))
+    }
+  </div>
+  {more && <a class="ll__more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .ll {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .ll__head {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+  }
+  .ll__list {
+    display: flex;
+    flex-direction: column;
+  }
+  .ll__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ll__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ll__name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .ll__leader {
+    font-size: 13px;
+  }
+  .ll__leader strong {
+    font-weight: 600;
+  }
+  .ll__edition {
+    font-size: 12px;
+    color: var(--ink-muted);
+    text-align: right;
+  }
+  .ll__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

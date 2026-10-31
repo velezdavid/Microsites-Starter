@@ -1,0 +1,47 @@
+---
+import type { EdBreadcrumbBlock } from "../types";
+
+type Props = Omit<EdBreadcrumbBlock, "_type">;
+
+const { items } = Astro.props;
+---
+
+<nav class="bc" aria-label="Ruta">
+  {
+    items.map((c, i) => (
+      <>
+        {i > 0 && (
+          <span class="bc__sep" aria-hidden="true">
+            /
+          </span>
+        )}
+        {c.href && i < items.length - 1 ? (
+          <a href={c.href}>{c.label}</a>
+        ) : (
+          <span class="bc__current" aria-current="page">
+            {c.label}
+          </span>
+        )}
+      </>
+    ))
+  }
+</nav>
+
+<style>
+  .bc {
+    padding: 32px var(--gutter) 0;
+    display: flex;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .bc__sep {
+    color: var(--ink-subtle);
+  }
+  .bc__current {
+    color: var(--accent-text);
+  }
+</style>

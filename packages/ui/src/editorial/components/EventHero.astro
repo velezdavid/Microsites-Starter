@@ -1,0 +1,183 @@
+---
+import type { EdEventHeroBlock } from "../registry-types";
+import Countdown from "./Countdown.astro";
+
+type Props = Omit<EdEventHeroBlock, "_type">;
+
+const { breadcrumb, status, eyebrow, title, highlight, text, facts, countdown } = Astro.props;
+---
+
+<div class="eh">
+  <nav class="eh__crumbs" aria-label="Ruta">
+    {
+      breadcrumb.map((c, i) => (
+        <>
+          {i > 0 && <span aria-hidden="true">/</span>}
+          {c.href && i < breadcrumb.length - 1 ? (
+            <a href={c.href}>{c.label}</a>
+          ) : (
+            <span class="eh__current" aria-current="page">
+              {c.label}
+            </span>
+          )}
+        </>
+      ))
+    }
+  </nav>
+  <div class="eh__grid" data-r="stack">
+    <div class="eh__main">
+      <span class="eh__tags">
+        <span class="eh__status">{status}</span>
+        <span class="eh__eyebrow">{eyebrow}</span>
+      </span>
+      <h1 class="eh__title">
+        {
+          title.map((l, i) => (
+            <>
+              {i > 0 && <br />}
+              {l === highlight ? <span class="eh__hl">{l}</span> : l}
+            </>
+          ))
+        }
+      </h1>
+      <p class="eh__text">{text}</p>
+    </div>
+    <div class="eh__side">
+      {
+        facts.map((f) => (
+          <div class="eh__fact">
+            <span class="eh__label">{f.label}</span>
+            <span class="eh__value">{f.value}</span>
+          </div>
+        ))
+      }
+      {
+        countdown && (
+          <div class="eh__count">
+            <Countdown class="eh__days" date={countdown.date} fallback={countdown.fallback} format="days" />
+            <span class="eh__count-label">{countdown.label}</span>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .eh {
+    background: var(--deep);
+    color: #fff;
+  }
+  .eh__crumbs {
+    padding: 28px var(--gutter) 0;
+    display: flex;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #bdbdbd;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .eh .eh__crumbs a {
+    color: #bdbdbd;
+  }
+  .eh .eh__crumbs a:hover {
+    color: #fff;
+  }
+  .eh__current {
+    color: var(--accent);
+  }
+  .eh__grid {
+    padding: 36px var(--gutter) 48px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: end;
+  }
+  .eh__main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .eh__tags {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .eh__status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border: 1px solid #fff;
+  }
+  .eh__eyebrow {
+    color: var(--accent);
+  }
+  .eh__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(50px, 8.13vw, 104px);
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+  .eh__hl {
+    color: var(--accent);
+  }
+  .eh__text {
+    margin: 0;
+    max-width: 600px;
+    font-size: 19px;
+    line-height: 1.55;
+    color: #e6e6e6;
+  }
+  .eh__side {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #444;
+  }
+  .eh__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 0;
+    border-bottom: 1px solid #333;
+  }
+  .eh__label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    color: #9a9a9a;
+    text-transform: uppercase;
+  }
+  .eh__value {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .eh__count {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-top: 18px;
+    flex-wrap: wrap;
+  }
+  .eh :global(.eh__days) {
+    font-family: var(--font-display);
+    font-size: clamp(31px, 5vw, 64px);
+    line-height: 0.85;
+    color: var(--accent);
+  }
+  .eh__count-label {
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+</style>

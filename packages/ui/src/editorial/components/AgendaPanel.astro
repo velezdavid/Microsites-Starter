@@ -1,0 +1,109 @@
+---
+import type { EdAgendaPanelBlock } from "../registry-types";
+
+type Props = Omit<EdAgendaPanelBlock, "_type">;
+
+const { eyebrow, title, items, more } = Astro.props;
+---
+
+<div class="ap">
+  <div class="ed-heading2">
+    <span class="ed-heading2__eyebrow">{eyebrow}</span>
+    <h2 class="ed-heading2__title">{title}</h2>
+  </div>
+  <div class="ap__list">
+    {
+      items.map((g) => {
+        const Tag = g.href ? "a" : "div";
+        return (
+          <Tag href={g.href} class="ap__row">
+            <span class="ap__date">
+              <span class="ap__day">{g.day}</span>
+              <span class="ap__month">{g.month}</span>
+            </span>
+            <span class="ap__text">
+              <span class="ap__name">{g.name}</span>
+              <span class="ap__place">{g.place}</span>
+            </span>
+            <span class:list={["ap__flag", { "ap__flag--soon": g.soon }]}>{g.flag}</span>
+          </Tag>
+        );
+      })
+    }
+  </div>
+  {more && <a class="ap__more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .ap {
+    background: var(--deep);
+    color: #fff;
+    padding: clamp(16px, 2.81vw, 36px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .ap :global(.ed-heading2__eyebrow) {
+    color: var(--accent);
+  }
+  .ap__list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #333;
+  }
+  :global(.ed) .ap__row {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #333;
+    color: #fff;
+  }
+  .ap__date {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.9;
+  }
+  .ap__day {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.97vw, 38px);
+  }
+  .ap__month {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #9a9a9a;
+    text-transform: uppercase;
+  }
+  .ap__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ap__name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .ap__place {
+    font-size: 12px;
+    color: #b5b5b5;
+  }
+  .ap__flag {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #b5b5b5;
+    text-transform: uppercase;
+  }
+  .ap__flag--soon {
+    color: var(--accent);
+  }
+  :global(.ed) .ap__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: #fff;
+    text-transform: uppercase;
+  }
+</style>

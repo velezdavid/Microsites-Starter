@@ -1,0 +1,219 @@
+---
+import type { EdResultsTableBlock } from "../registry-types";
+
+type Props = Omit<EdResultsTableBlock, "_type">;
+
+const { searchPlaceholder, filters, columns, rows, skip = 0, highlight = 3, count, empty, more, note } = Astro.props;
+---
+
+<div class="rt" data-ed-results data-skip={skip}>
+  <div class="rt__tools">
+    <label class="ed-visually-hidden" for="rt-search">{searchPlaceholder}</label>
+    <input id="rt-search" class="rt__search" type="search" placeholder={searchPlaceholder} autocomplete="off" />
+    <div class="rt__chips" role="group" aria-label="Filtrar por sector">
+      {
+        filters.map((f, i) => (
+          <button type="button" class="ed-chip rt__chip" data-filter={i === 0 ? "" : f} aria-pressed={i === 0 ? "true" : "false"}>
+            {f}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="rt__table">
+    <div class="rt__grid rt__thead" data-r="thead">
+      <span>{columns[0]}</span><span>{columns[1]}</span><span>{columns[2]}</span>
+      <span class="rt__right">{columns[3]}</span><span class="rt__right">{columns[4]}</span>
+    </div>
+    {
+      rows.map((r, i) => {
+        const Tag = r.href ? "a" : "div";
+        return (
+          <Tag
+            href={r.href}
+            class="rt__grid rt__row"
+            data-r="table"
+            data-name={r.name.toLowerCase()}
+            data-sector={r.sector}
+            hidden={i < skip}
+          >
+            <span class:list={["rt__pos", { "rt__pos--top": r.position <= highlight }]}>{r.position}</span>
+            <span class="rt__name">{r.name}</span>
+            <span class="rt__sector">{r.sector}</span>
+            <span class="rt__score">{r.score}</span>
+            <span class:list={["rt__change", { "rt__change--down": r.change.startsWith("▼"), "rt__change--new": r.change === "Nueva" }]}>
+              {r.change}
+            </span>
+          </Tag>
+        );
+      })
+    }
+    <p class="rt__empty" hidden>{empty}</p>
+  </div>
+
+  <div class="rt__foot">
+    <span class="rt__count" data-template={count}>{count.replace("{n}", String(rows.length))}</span>
+    {more && <a class="ed-btn" href={more.href}>{more.label} ↗</a>}
+  </div>
+  {note && <p class="rt__note">{note}</p>}
+</div>
+
+<script>
+  // Search + sector filter. Without filters the podium rows (data-skip) stay hidden.
+  document.querySelectorAll<HTMLElement>("[data-ed-results]").forEach((box) => {
+    const skip = Number(box.dataset.skip ?? 0);
+    const input = box.querySelector<HTMLInputElement>(".rt__search")!;
+    const chips = box.querySelectorAll<HTMLButtonElement>(".rt__chip");
+    const rows = [...box.querySelectorAll<HTMLElement>(".rt__row")];
+    const empty = box.querySelector<HTMLElement>(".rt__empty")!;
+    const counter = box.querySelector<HTMLElement>(".rt__count")!;
+    let sector = "";
+
+    const apply = () => {
+      const q = input.value.trim().toLowerCase();
+      const filtering = !!q || !!sector;
+      let shown = 0;
+      rows.forEach((row, i) => {
+        const visible = filtering ? (!sector || row.dataset.sector === sector) && (row.dataset.name ?? "").includes(q) : i >= skip;
+        row.hidden = !visible;
+        if (visible) shown++;
+      });
+      empty.hidden = shown > 0;
+      counter.textContent = (counter.dataset.template ?? "").replace("{n}", String(filtering ? shown : rows.length));
+    };
+    input.addEventListener("input", apply);
+    chips.forEach((chip) =>
+      chip.addEventListener("click", () => {
+        chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+        sector = chip.dataset.filter ?? "";
+        apply();
+      }),
+    );
+  });
+</script>
+
+<style>
+  .rt {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .rt__tools {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .rt__search {
+    flex: 1;
+    min-width: 220px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    color: var(--ink);
+  }
+  .rt__search:focus {
+    border-color: var(--ink);
+  }
+  .rt__chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  :global(.ed) .rt__chip {
+    height: 40px;
+  }
+  .rt__table {
+    display: flex;
+    flex-direction: column;
+  }
+  .rt__grid {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 150px 90px 80px;
+    gap: 12px;
+  }
+  .rt__thead {
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .rt__right {
+    text-align: right;
+  }
+  .rt__row {
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rt__row[hidden] {
+    display: none;
+  }
+  .rt__pos {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1;
+  }
+  .rt__pos--top {
+    color: var(--accent);
+  }
+  .rt__name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .rt__sector {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .rt__score {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .rt__change {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    text-transform: uppercase;
+  }
+  .rt__change--down {
+    color: var(--ink-muted);
+  }
+  .rt__change--new {
+    color: var(--accent-text);
+  }
+  .rt__empty {
+    margin: 0;
+    padding: 32px 0;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+  .rt__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .rt__count {
+    color: var(--ink-muted);
+  }
+  .rt__note {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+  }
+</style>

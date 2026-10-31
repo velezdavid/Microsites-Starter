@@ -1,0 +1,70 @@
+---
+import type { EdPaginationBlock } from "../types";
+
+type Props = Omit<EdPaginationBlock, "_type">;
+
+const { pages, prev, next, prevLabel, nextLabel } = Astro.props;
+---
+
+<nav class="pg" aria-label="Paginación">
+  {prev ? <a class="pg__step" href={prev.href} rel="prev">{prevLabel}</a> : <span class="pg__step pg__step--off">{prevLabel}</span>}
+  <div class="pg__pages">
+    {
+      pages.map((p) => (
+        <a class:list={["pg__page", { "pg__page--current": p.current }]} href={p.href} aria-current={p.current ? "page" : undefined}>
+          {p.label}
+        </a>
+      ))
+    }
+  </div>
+  {next ? <a class="pg__step" href={next.href} rel="next">{nextLabel}</a> : <span class="pg__step pg__step--off">{nextLabel}</span>}
+</nav>
+
+<style>
+  .pg {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--ink);
+    padding-top: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pg__step {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.16em;
+    height: 38px;
+    padding: 0 14px;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    background: #fff;
+    text-transform: uppercase;
+  }
+  .pg__step--off {
+    color: var(--ink-muted);
+  }
+  .pg__pages {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .pg__page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 17px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  :global(.ed) .pg__page--current {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+  }
+</style>

@@ -1,0 +1,120 @@
+---
+import type { EdNewsletterHeroBlock } from "../registry-types";
+import FormFields from "./FormFields.astro";
+
+type Props = Omit<EdNewsletterHeroBlock, "_type">;
+
+const { eyebrow, title, text, totals, formTitle, form } = Astro.props;
+---
+
+<div class="nh" data-r="stack">
+  <div class="nh__intro">
+    <span class="nh__eyebrow">{eyebrow}</span>
+    <h1 class="nh__title">
+      {
+        title.map((l, i) => (
+          <>
+            {i > 0 && <br />}
+            {i === title.length - 1 ? <span class="nh__accent">{l}</span> : l}
+          </>
+        ))
+      }
+    </h1>
+    <div class="nh__rule" aria-hidden="true"></div>
+    <p class="nh__text">{text}</p>
+    <div class="nh__totals">
+      {
+        totals.map((t) => (
+          <div class="nh__total">
+            <span class="nh__value">{t.value}</span>
+            <span class="nh__label">{t.label}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+  <div class="nh__box">
+    <span class="nh__form-title">{formTitle}</span>
+    <FormFields form={form} />
+  </div>
+</div>
+
+<style>
+  .nh {
+    padding: 56px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    gap: clamp(20px, 5vw, 64px);
+    align-items: start;
+  }
+  .nh__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .nh__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .nh__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(58px, 9.38vw, 120px);
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+  .nh__accent {
+    color: var(--accent);
+  }
+  .nh__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .nh__text {
+    margin: 0;
+    max-width: 600px;
+    font-size: 20px;
+    line-height: 1.55;
+  }
+  .nh__totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(90px, calc(100% / 3 - 32px)), 1fr));
+    border-top: 1px solid var(--ink);
+    max-width: 600px;
+    margin-top: 8px;
+    row-gap: 36px;
+  }
+  .nh__total {
+    padding: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .nh__value {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.13vw, 40px);
+    line-height: 1;
+  }
+  .nh__label {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .nh__box {
+    background: var(--sunken);
+    padding: clamp(16px, 2.81vw, 36px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .nh__form-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+</style>

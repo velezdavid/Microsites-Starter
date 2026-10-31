@@ -1,0 +1,85 @@
+---
+import type { EdDeadlineListBlock } from "../types";
+
+type Props = Omit<EdDeadlineListBlock, "_type">;
+
+const { title, items, more } = Astro.props;
+
+const status = (d: EdDeadlineListBlock["items"][number]) => {
+  const urgent = d.status === "abierta" && d.daysLeft != null && d.daysLeft <= 14;
+  const label = d.status === "cerrada" ? "Cerrada" : d.status === "proxima" ? "Próxima" : urgent ? `Quedan ${d.daysLeft} días` : "Abierta";
+  return { urgent, label };
+};
+---
+
+<div class="dl">
+  <span class="ed-label dl__title">{title}</span>
+  {
+    items.map((d) => {
+      const s = status(d);
+      const Tag = d.href ? "a" : "div";
+      return (
+        <Tag href={d.href} class="dl__item">
+          <span class="dl__text">
+            <span class="dl__award">{d.award}</span>
+            <span class="dl__edition">
+              {d.edition}
+              {d.closes && <> · Cierre {d.closes}</>}
+            </span>
+          </span>
+          <span class:list={["dl__status", { "dl__status--urgent": s.urgent, "dl__status--closed": d.status === "cerrada" }]}>{s.label}</span>
+        </Tag>
+      );
+    })
+  }
+  {more && <a class="ed-more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .dl {
+    display: flex;
+    flex-direction: column;
+  }
+  .dl__title {
+    padding-bottom: 4px !important;
+  }
+  .dl__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dl__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .dl__award {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .dl__edition {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .dl__status {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border: 1px solid var(--ink);
+  }
+  .dl__status--urgent {
+    background: var(--accent-text);
+    color: #fff;
+    border-color: var(--accent-text);
+  }
+  .dl__status--closed {
+    color: var(--ink-muted);
+    border-color: var(--line);
+  }
+</style>

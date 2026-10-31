@@ -1,4 +1,30 @@
-import { defineArrayMember, defineField, type ReferenceFilterResolver } from "sanity";
+import { defineArrayMember, defineField, type ReferenceFilterResolver, type SlugIsUniqueValidator } from "sanity";
+
+/** Slugs only need to be unique among documents of the same type and site. */
+export const isUniqueInSite: SlugIsUniqueValidator = async (slug, context) => {
+  const { document, getClient } = context;
+  const id = document?._id.replace(/^drafts\./, "");
+  const params = {
+    slug,
+    type: document?._type ?? "",
+    site: (document?.site as { _ref?: string } | undefined)?._ref ?? "",
+    draft: `drafts.${id}`,
+    published: id,
+  };
+  const query = `!defined(*[_type == $type && slug.current == $slug && site._ref == $site && !(_id in [$draft, $published])][0]._id)`;
+  return getClient({ apiVersion: "2026-10-01" }).fetch(query, params);
+};
+
+/** Required slug generated from `source`, unique within the site. */
+export const siteSlugField = (source: string, description?: string) =>
+  defineField({
+    name: "slug",
+    title: "Slug",
+    type: "slug",
+    description,
+    options: { source, isUnique: isUniqueInSite },
+    validation: (rule) => rule.required(),
+  });
 
 /** Restricts reference pickers to documents of the same site as the edited document. */
 export const sameSiteFilter: ReferenceFilterResolver = ({ document }) => ({

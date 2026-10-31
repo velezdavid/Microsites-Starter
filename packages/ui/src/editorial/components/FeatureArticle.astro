@@ -1,0 +1,280 @@
+---
+import type { EdFeatureArticleBlock, EdFeatureNode } from "../registry-types";
+import ArticleHeader from "./ArticleHeader.astro";
+import ImageFrame from "./ImageFrame.astro";
+import MedalBadge from "./MedalBadge.astro";
+
+type Props = Omit<EdFeatureArticleBlock, "_type">;
+
+const { image, eyebrow, title, highlight, dek, author, meta, shareUrl, body } = Astro.props;
+
+// Consecutive text nodes share the centered column; image pairs break out to full width.
+const segments: { wide: boolean; nodes: EdFeatureNode[] }[] = [];
+for (const n of body) {
+  const wide = n._type === "imagePair";
+  const last = segments.at(-1);
+  if (last && last.wide === wide && !wide) last.nodes.push(n);
+  else segments.push({ wide, nodes: [n] });
+}
+---
+
+<div class="fa">
+  <ImageFrame image={{ label: image.label, src: image.src, alt: image.alt }} ratio="16/7" />
+  {
+    (image.caption || image.credit) && (
+      <p class="fa__caption">
+        {image.caption}
+        {image.credit && <span class="fa__credit"> · {image.credit}</span>}
+      </p>
+    )
+  }
+  <div class="fa__head">
+    <ArticleHeader eyebrow={eyebrow} title={title} highlight={highlight} dek={dek} author={author} meta={meta} shareUrl={shareUrl} centered />
+  </div>
+  {
+    segments.map((seg, si) =>
+      seg.wide ? (
+        seg.nodes.map((n) =>
+          n._type === "imagePair" ? (
+            <div class="fa__pair" data-r="stack" style={`grid-template-columns:minmax(0,${n.weights[0]}fr) minmax(0,${n.weights[1]}fr)`}>
+              {n.images.map((im) => (
+                <ImageFrame image={{ label: im.label, caption: im.caption, src: im.src, alt: im.alt }} ratio={im.ratio} />
+              ))}
+            </div>
+          ) : null,
+        )
+      ) : (
+        <div class:list={["fa__col", { "fa__col--first": si === 0, "fa__col--after-wide": si > 0 }]} data-r="stack">
+          <div />
+          <article class="fa__text">
+            {seg.nodes.map((n) => {
+              switch (n._type) {
+                case "p":
+                  return n.dropCap ? (
+                    <p class="fa__p">
+                      <span class="fa__drop">{n.text.charAt(0)}</span> {n.text.slice(1).trimStart()}
+                    </p>
+                  ) : n.html ? (
+                    <p class:list={["fa__p", { "fa__p--closing": n.closing }]} set:html={n.html} />
+                  ) : (
+                    <p class:list={["fa__p", { "fa__p--closing": n.closing }]}>{n.text}</p>
+                  );
+                case "h2":
+                  return <h2 class="fa__h2">{n.text}</h2>;
+                case "pullQuote":
+                  return (
+                    <blockquote class="fa__quote">
+                      <span class="fa__rule" aria-hidden="true" />
+                      <p>{n.text}</p>
+                      {n.author && (
+                        <cite>
+                          <strong>{n.author}</strong>
+                          {n.role && <>, {n.role}</>}
+                        </cite>
+                      )}
+                    </blockquote>
+                  );
+                case "recordList":
+                  return (
+                    <div class="fa__records">
+                      <div class="fa__records-head">
+                        <span class="fa__records-title">{n.title}</span>
+                        {n.more && <a href={n.more.href}>{n.more.label} ↗</a>}
+                      </div>
+                      {n.items.map((p) => {
+                        const Tag = p.href ? "a" : "div";
+                        return (
+                          <Tag href={p.href} class="fa__record">
+                            <span class="fa__record-year">{p.year}</span>
+                            <span class="fa__record-award">{p.award}</span>
+                            <MedalBadge level={p.level} label={p.result} />
+                          </Tag>
+                        );
+                      })}
+                    </div>
+                  );
+                case "sponsor":
+                  return (
+                    <>
+                      <div class="fa__sponsor">
+                        <span class="fa__sponsor-label">{n.label}</span>
+                        <span class="fa__sponsor-logo">{n.logo}</span>
+                      </div>
+                      <p class="fa__sponsor-note">{n.note}</p>
+                    </>
+                  );
+                default:
+                  return null;
+              }
+            })}
+          </article>
+          <div />
+        </div>
+      ),
+    )
+  }
+</div>
+
+<style>
+  .fa__caption {
+    margin: 0;
+    padding: 10px var(--gutter) 0;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .fa__credit {
+    color: var(--ink-muted);
+  }
+  .fa__head :global(.ah) {
+    padding-top: 56px;
+  }
+  .fa__col {
+    padding: 0 var(--gutter);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 680px minmax(0, 1fr);
+  }
+  .fa__col--first {
+    padding-top: 40px;
+  }
+  .fa__text {
+    display: flex;
+    flex-direction: column;
+  }
+  .fa__p {
+    margin: 0 0 24px;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+  .fa__p--closing {
+    margin-top: 32px;
+    margin-bottom: 0;
+  }
+  .fa__drop {
+    float: left;
+    font-family: var(--font-display);
+    font-size: clamp(46px, 7.5vw, 96px);
+    line-height: 0.8;
+    padding: 8px 12px 0 0;
+  }
+  .fa__h2 {
+    margin: 32px 0 16px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+  .fa__col--after-wide .fa__text > .fa__h2:first-child {
+    margin-top: 16px;
+  }
+  .fa__quote {
+    margin: 32px 0 40px;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .fa__quote + .fa__h2 {
+    margin-top: 8px;
+  }
+  .fa__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .fa__quote p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 44px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .fa__quote cite {
+    font-style: normal;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .fa__quote strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .fa__pair {
+    padding: 24px var(--gutter) 40px;
+    display: grid;
+    gap: 16px;
+  }
+  .fa__records {
+    margin: 16px 0 8px;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+  }
+  .fa__records-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    flex-wrap: wrap;
+  }
+  .fa__records-head a {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .fa__records-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .fa__record {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .fa__record-year {
+    font-family: var(--font-display);
+    font-size: 20px;
+  }
+  .fa__record-award {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .fa__sponsor {
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .fa__sponsor-label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+  }
+  .fa__sponsor-logo {
+    width: 106px;
+    height: 30px;
+    border: 1px dashed var(--ink-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .fa__sponsor-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+  }
+</style>

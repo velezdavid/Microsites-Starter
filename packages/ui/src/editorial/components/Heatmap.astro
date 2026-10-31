@@ -1,0 +1,124 @@
+---
+import type { EdHeatmapBlock } from "../registry-types";
+
+type Props = Omit<EdHeatmapBlock, "_type">;
+
+const { years, totalLabel, rows, legend } = Astro.props;
+const tracks = `28px minmax(0,1fr) repeat(${years.length},22px) 56px`;
+const CELL = ["out", "top", "first"] as const;
+---
+
+<div class="hm">
+  <div class="hm__table" role="table" aria-label={legend.join(", ")}>
+    <div class="hm__grid hm__head" data-r="table" style={`grid-template-columns:${tracks}`} role="row">
+      <span></span><span></span>
+      {years.map((y) => <span class="hm__year" role="columnheader">{y}</span>)}
+      <span class="hm__total-label" role="columnheader">{totalLabel}</span>
+    </div>
+    {
+      rows.map((r, i) => {
+        const Tag = r.href ? "a" : "div";
+        return (
+          <Tag href={r.href} class="hm__grid hm__row" data-r="table" style={`grid-template-columns:${tracks}`} role="row">
+            <span class="hm__index">{i + 1}</span>
+            <span class="hm__name" role="rowheader">{r.name}</span>
+            {r.cells.map((c, j) => (
+              <span class:list={["hm__cell", `hm__cell--${CELL[c]}`]} role="cell" title={`${years[j]}: ${legend[2 - c]}`} />
+            ))}
+            <span class="hm__total" role="cell">
+              {r.cells.filter((c) => c > 0).length}
+            </span>
+          </Tag>
+        );
+      })
+    }
+  </div>
+  <div class="hm__legend">
+    <span><span class="hm__key hm__cell--first"></span>{legend[0]}</span>
+    <span><span class="hm__key hm__cell--top"></span>{legend[1]}</span>
+    <span><span class="hm__key hm__cell--out"></span>{legend[2]}</span>
+  </div>
+</div>
+
+<style>
+  .hm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .hm__table {
+    display: flex;
+    flex-direction: column;
+  }
+  .hm__grid {
+    display: grid;
+    gap: 4px;
+  }
+  .hm__head {
+    align-items: end;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .hm__year {
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  .hm__total-label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    color: var(--ink-muted);
+    text-align: right;
+    text-transform: uppercase;
+  }
+  .hm__row {
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .hm__index {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--accent-text);
+  }
+  .hm__name {
+    font-size: 14px;
+    font-weight: 600;
+    padding-right: 12px;
+  }
+  .hm__cell {
+    width: 22px;
+    height: 22px;
+  }
+  .hm__cell--first {
+    background: var(--accent);
+  }
+  .hm__cell--top {
+    background: var(--ink);
+  }
+  .hm__cell--out {
+    border: 1px solid var(--line);
+  }
+  .hm__total {
+    font-family: var(--font-display);
+    font-size: 24px;
+    text-align: right;
+  }
+  .hm__legend {
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    flex-wrap: wrap;
+  }
+  .hm__legend > span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hm__key {
+    width: 12px;
+    height: 12px;
+  }
+</style>

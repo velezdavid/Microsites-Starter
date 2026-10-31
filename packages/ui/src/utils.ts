@@ -28,10 +28,15 @@ const THEME_VARS: Record<keyof Theme, string> = {
   fontDisplay: "--font-display",
   fontBody: "--font-body",
   fontMono: "--font-mono",
+  premium: "--color-premium",
+  accentText: "--color-accent-text",
 };
 
 export function themeStyle(theme: Theme): string {
-  return (Object.keys(THEME_VARS) as (keyof Theme)[]).map((k) => `${THEME_VARS[k]}:${theme[k]}`).join(";");
+  return (Object.keys(THEME_VARS) as (keyof Theme)[])
+    .filter((k) => theme[k] !== undefined)
+    .map((k) => `${THEME_VARS[k]}:${theme[k]}`)
+    .join(";");
 }
 
 /** Splits a title around the highlighted substring. */

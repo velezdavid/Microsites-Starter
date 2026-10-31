@@ -1,0 +1,84 @@
+---
+import type { EdPodiumBlock } from "../registry-types";
+
+type Props = Omit<EdPodiumBlock, "_type">;
+
+const { items } = Astro.props;
+---
+
+<ol class="pd">
+  {
+    items.map((p) => {
+      const Tag = p.href ? "a" : "div";
+      return (
+        <li class="pd__item">
+          <Tag href={p.href} class="pd__card">
+            <span class="pd__pos">{p.position}</span>
+            <span class="pd__text">
+              <span class="pd__name">{p.name}</span>
+              <span class="pd__detail">{p.detail}</span>
+              {p.score && (
+                <span class="pd__score">
+                  <strong>{p.score}</strong> pts · <span class="pd__change">{p.change}</span>
+                </span>
+              )}
+            </span>
+          </Tag>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .pd {
+    list-style: none;
+    margin: 0;
+    padding: 40px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(170px, calc(100% / 3 - 32px)), 1fr));
+    row-gap: 36px;
+  }
+  .pd__item {
+    padding: 0 clamp(16px, 2.19vw, 28px);
+    border-left: 1px solid var(--line);
+  }
+  .pd__item:first-child {
+    border-left: 0;
+  }
+  .pd__card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 20px;
+    align-items: end;
+  }
+  .pd__pos {
+    font-family: var(--font-display);
+    font-size: clamp(71px, 11.56vw, 148px);
+    line-height: 0.78;
+    color: var(--accent);
+  }
+  .pd__text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+  .pd__name {
+    font-family: var(--font-display);
+    font-size: 30px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .pd__detail {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .pd__score {
+    font-size: 13px;
+  }
+  .pd__score strong,
+  .pd__change {
+    font-weight: 600;
+  }
+</style>

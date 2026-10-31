@@ -1,0 +1,51 @@
+---
+import type { EdSectorCountsBlock } from "../registry-types";
+
+type Props = Omit<EdSectorCountsBlock, "_type">;
+
+const { title, items } = Astro.props;
+---
+
+<div class="sc">
+  <span class="ed-aside-title">{title}</span>
+  {
+    items.map((b) => (
+      <button type="button" class="sc__item" data-ed-sector={b.label}>
+        <span>{b.label}</span>
+        <span class="sc__count">{b.count}</span>
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  // Filters the directory on the page by sector.
+  document.querySelectorAll<HTMLButtonElement>("[data-ed-sector]").forEach((b) =>
+    b.addEventListener("click", () => document.dispatchEvent(new CustomEvent("ed:directory", { detail: { sector: b.dataset.edSector } }))),
+  );
+</script>
+
+<style>
+  .sc {
+    display: flex;
+    flex-direction: column;
+  }
+  .sc__item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+  }
+  .sc__item:hover {
+    color: var(--accent-text);
+  }
+  .sc__count {
+    font-weight: 600;
+  }
+</style>

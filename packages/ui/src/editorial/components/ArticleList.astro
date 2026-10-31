@@ -1,0 +1,50 @@
+---
+import type { EdArticleListBlock } from "../types";
+import ArticleCard from "./ArticleCard.astro";
+
+type Props = Omit<EdArticleListBlock, "_type">;
+
+const { items, variant = "ranked", label, gap } = Astro.props;
+const space = gap ?? (label ? 18 : 22);
+---
+
+<div class="al" style={`gap:${space}px`}>
+  {label && <h2 class="al__label">{label}</h2>}
+  <ol class="al__list" style={`gap:${space}px`}>
+    {
+      items.map((a, i) => (
+        <li class="al__item">
+          <ArticleCard article={a} variant={variant} index={i + 1} />
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .al,
+  .al__list {
+    display: flex;
+    flex-direction: column;
+  }
+  .al__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .al__label {
+    margin: 0;
+    font-weight: 400;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 8px;
+  }
+  .al__item {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+</style>

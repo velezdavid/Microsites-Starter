@@ -1,8 +1,9 @@
 ---
-import SitePage from "../components/SitePage.astro";
 import { isPreviewRequest } from "../lib/content/preview";
+import { getSitePage } from "../lib/content/template";
 import { getSite } from "../lib/content/site";
 
+const SitePage = await getSitePage();
 const preview = isPreviewRequest(Astro.cookies);
 const site = await getSite({ preview });
 const page = site.pages.find((p) => p.path === "");

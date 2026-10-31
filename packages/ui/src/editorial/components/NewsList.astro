@@ -1,0 +1,31 @@
+---
+import type { EdNewsListBlock } from "../registry-types";
+import ArticleCard from "./ArticleCard.astro";
+
+type Props = Omit<EdNewsListBlock, "_type">;
+
+const { title, items } = Astro.props;
+---
+
+<div class="nl">
+  <h2 class="ed-aside-title">{title}</h2>
+  {
+    items.map((a) => (
+      <div class="nl__item">
+        <ArticleCard article={a} variant="compact" />
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .nl {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .nl__item {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+</style>

@@ -1,0 +1,262 @@
+---
+import type { EdArticleBodyBlock } from "../types";
+import ImageFrame from "./ImageFrame.astro";
+
+// The aside blocks arrive rendered through the "aside" slot (avoids a circular import).
+type Props = Omit<EdArticleBodyBlock, "_type" | "aside">;
+
+const { keyFacts, body, tags } = Astro.props;
+---
+
+<div class="ab" data-r="stack">
+  <aside class="ab__facts">
+    {
+      keyFacts && (
+        <>
+          <span class="ab__facts-title">{keyFacts.title}</span>
+          {keyFacts.items.map((k) => (
+            <div class="ab__fact">
+              <span class="ab__fact-value">{k.value}</span>
+              <span class="ab__fact-label">{k.label}</span>
+            </div>
+          ))}
+        </>
+      )
+    }
+  </aside>
+
+  <article class="ab__text">
+    {
+      body.map((n) => {
+        switch (n._type) {
+          case "p":
+            return n.html ? <p class="ab__p" set:html={n.html} /> : <p class="ab__p">{n.text}</p>;
+          case "h2":
+            return <h2 class="ab__h2">{n.text}</h2>;
+          case "pullQuote":
+            return (
+              <blockquote class="ab__quote">
+                <span class="ab__rule" aria-hidden="true" />
+                <p>{n.text}</p>
+                {n.author && (
+                  <cite>
+                    <strong>{n.author}</strong>
+                    {n.role && <>, {n.role}</>}
+                  </cite>
+                )}
+              </blockquote>
+            );
+          case "image":
+            return <ImageFrame class="ab__image" image={n.image} ratio={n.ratio ?? "3/2"} />;
+          case "rankingTable":
+            return (
+              <div class="ab__table">
+                {n.rows.map((r, i) => {
+                  const Tag = r.href ? "a" : "div";
+                  return (
+                    <Tag href={r.href} class="ab__row" data-r="table">
+                      <span class:list={["ab__pos", { "ab__pos--top": i < (n.highlight ?? 3) }]}>{r.position}</span>
+                      <span class="ab__name">{r.name}</span>
+                      <span class="ab__detail">{r.detail}</span>
+                      <span class:list={["ab__change", { "ab__change--down": r.change?.startsWith("▼") }]}>{r.change}</span>
+                    </Tag>
+                  );
+                })}
+                {(n.source || n.more) && (
+                  <div class="ab__source">
+                    <span>{n.source}</span>
+                    {n.more && <a href={n.more.href}>{n.more.label} ↗</a>}
+                  </div>
+                )}
+              </div>
+            );
+          default:
+            return null;
+        }
+      })
+    }
+    {
+      tags && tags.items.length > 0 && (
+        <div class="ab__tags">
+          <span class="ab__tags-title">{tags.title}</span>
+          {tags.items.map((t) => (
+            <a href={t.href}>{t.label}</a>
+          ))}
+        </div>
+      )
+    }
+  </article>
+
+  <aside class="ab__aside">
+    <slot name="aside" />
+  </aside>
+</div>
+
+<style>
+  .ab {
+    padding: 56px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 680px) minmax(0, 1fr);
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: start;
+  }
+  .ab__facts {
+    display: flex;
+    flex-direction: column;
+  }
+  .ab__facts-title {
+    border-top: 1px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    padding: 10px 0;
+    text-transform: uppercase;
+  }
+  .ab__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .ab__fact-value {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.81vw, 36px);
+    line-height: 1;
+  }
+  .ab__fact-label {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-muted);
+  }
+  .ab__text {
+    display: flex;
+    flex-direction: column;
+  }
+  .ab__p {
+    margin: 0 0 24px;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+  .ab__h2 {
+    margin: 32px 0 16px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+  .ab__quote {
+    margin: 16px 0 40px;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ab__quote + .ab__h2 {
+    margin-top: 8px;
+  }
+  .ab__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .ab__quote p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 44px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .ab__quote cite {
+    font-style: normal;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .ab__quote strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .ab :global(.ab__image) {
+    margin: 8px 0 32px;
+  }
+  .ab__table {
+    margin: 0 0 32px;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+  }
+  .ab__row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 140px 60px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ab__pos {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1;
+  }
+  .ab__pos--top {
+    color: var(--accent);
+  }
+  .ab__name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .ab__detail {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .ab__change {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+  }
+  .ab__change--down {
+    color: var(--ink-muted);
+  }
+  .ab__source {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    flex-wrap: wrap;
+  }
+  .ab__source a {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ab__tags {
+    margin: 16px 0 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .ab__tags-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    margin-right: 6px;
+    text-transform: uppercase;
+  }
+  .ab__tags a {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+  }
+  .ab__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+</style>

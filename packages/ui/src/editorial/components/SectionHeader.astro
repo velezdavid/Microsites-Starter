@@ -1,0 +1,79 @@
+---
+import type { EdSectionHeaderBlock } from "../types";
+
+type Props = Omit<EdSectionHeaderBlock, "_type">;
+
+const { title, more, size = "md", description } = Astro.props;
+---
+
+<div class:list={["sh", `sh--${size}`]}>
+  <div class="sh__rule" aria-hidden="true"></div>
+  <div class="sh__row">
+    <h2 class="sh__title">{title}</h2>
+    <div class="sh__line" aria-hidden="true"></div>
+    {more && <a class="sh__more" href={more.href}>{more.label} ↗</a>}
+  </div>
+  {description && <p class="sh__desc">{description}</p>}
+</div>
+
+<style>
+  .sh {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sh__rule {
+    width: 64px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .sh__row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .sh__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .sh--sm .sh__title {
+    font-size: 22px;
+  }
+  .sh--lg .sh__title {
+    font-size: 72px;
+  }
+  .sh__line {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    align-self: center;
+  }
+  .sh__more {
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .sh__desc {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+  }
+  @container ed (max-width: 760px) {
+    .sh__row {
+      flex-wrap: wrap;
+    }
+    .sh__title {
+      white-space: normal;
+    }
+  }
+</style>

@@ -46,6 +46,10 @@ export interface Theme {
   fontDisplay: string;
   fontBody: string;
   fontMono: string;
+  /** Optional premium / secondary accent (e.g. gold for awards). */
+  premium?: string;
+  /** Optional accent for small text, when the accent lacks AA contrast on the background. */
+  accentText?: string;
 }
 
 export interface LogoConfig {

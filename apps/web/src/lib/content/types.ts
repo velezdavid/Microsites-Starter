@@ -1,4 +1,5 @@
 import type { AnalyticsConfig, Block, ExternalScript, FooterConfig, HeaderConfig, LogoConfig, Theme } from "@microsites/ui";
+import type { EdFooterConfig, EditorialBlock, MastheadConfig } from "@microsites/ui/editorial";
 
 /** Render-ready page: what the Astro templates consume. */
 export interface PageDefinition {
@@ -8,6 +9,8 @@ export interface PageDefinition {
   header: HeaderConfig;
   footer: FooterConfig;
   blocks: Block[];
+  /** Editorial template (SITE_TEMPLATE=editorial): page body and the menu item to mark. */
+  editorial?: { blocks: EditorialBlock[]; section?: string; flushFooter?: boolean };
 }
 
 export interface Redirect {
@@ -35,6 +38,10 @@ export interface SiteDefinition {
   redirects: Redirect[];
   /** Files served at the site root (e.g. Google Search Console verification). */
   verificationFiles: { filename: string; content: string }[];
+  /** Other generated root files (e.g. calendar feeds). */
+  files?: { filename: string; content: string; contentType: string }[];
+  /** Editorial template chrome (masthead and footer). */
+  editorial?: { masthead: MastheadConfig; footer: EdFooterConfig };
 }
 
 /** Public URL for a page path (spaces and accents encoded). */

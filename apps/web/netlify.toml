@@ -11,3 +11,9 @@
   for = "/_astro/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Brand files copied from the CMS, named after their content hash (editorial sites).
+[[headers]]
+  for = "/brand-*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

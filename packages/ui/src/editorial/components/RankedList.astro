@@ -1,0 +1,56 @@
+---
+import type { EdRankedListBlock } from "../registry-types";
+
+type Props = Omit<EdRankedListBlock, "_type">;
+
+const { title, items, highlight = 3 } = Astro.props;
+---
+
+<div class="rk">
+  <span class="ed-aside-title">{title}</span>
+  {
+    items.map((p, i) => {
+      const Tag = p.href ? "a" : "div";
+      return (
+        <Tag href={p.href} class="rk__item" aria-current={p.current ? "page" : undefined}>
+          <span class:list={["rk__index", { "rk__index--top": i < highlight }]}>{i + 1}</span>
+          <span class:list={["rk__name", { "rk__name--current": p.current }]}>{p.name}</span>
+          <span class="rk__count">{p.count}</span>
+        </Tag>
+      );
+    })
+  }
+</div>
+
+<style>
+  .rk {
+    display: flex;
+    flex-direction: column;
+  }
+  .rk__item {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rk__index {
+    font-family: var(--font-display);
+    font-size: 20px;
+  }
+  .rk__index--top {
+    color: var(--accent-text);
+  }
+  .rk__name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .rk__name--current {
+    font-weight: 700;
+  }
+  .rk__count {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+</style>
