@@ -1,0 +1,124 @@
+---
+import type { EdArticleGridBlock } from "../types";
+import ArticleCard from "./ArticleCard.astro";
+
+type Props = Omit<EdArticleGridBlock, "_type">;
+
+const {
+  items,
+  variant = "standard",
+  columns = 3,
+  showImage = false,
+  rule,
+  dividers = false,
+  itemRule = false,
+  itemBorder = false,
+  rulePadding,
+  ratio,
+  gap,
+  label,
+  note,
+  empty,
+  headingLevel,
+} = Astro.props;
+// Same wrapping rule as the design: equal columns, never narrower than 170px.
+const tracks = columns > 1 ? `repeat(auto-fit,minmax(max(170px,calc(100% / ${columns} - 32px)),1fr))` : "minmax(0,1fr)";
+const style = [
+  `grid-template-columns:${tracks}`,
+  gap != null ? `gap:${typeof gap === "number" ? `${gap}px` : gap}` : "",
+  rulePadding != null ? `--rule-pad:${rulePadding}px` : "",
+]
+  .filter(Boolean)
+  .join(";");
+---
+
+{
+  label && (
+    <div class="ag-head">
+      <h2 class="ag-head__label">{label}</h2>
+      {note && <span class="ag-head__note">{note}</span>}
+    </div>
+  )
+}
+{
+  items.length > 0 ? (
+    <div class:list={["ag", { "ag--rule-ink": rule === "ink", "ag--rule-line": rule === "line", "ag--dividers": dividers }]} style={style}>
+      {items.map((a) => (
+        <div class:list={["ag__item", { "ag__item--rule": itemRule === true, "ag__item--rule-line": itemRule === "line", "ag__item--border": itemBorder }]}>
+          <ArticleCard article={a} variant={variant} showImage={showImage} ratio={ratio} headingLevel={headingLevel} />
+        </div>
+      ))}
+    </div>
+  ) : (
+    empty && <p class="ag-empty">{empty}</p>
+  )
+}
+
+<style>
+  .ag-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .ag-head__label {
+    margin: 0;
+    font-weight: 400;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .ag-head__note {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .ag {
+    display: grid;
+    gap: 32px;
+  }
+  .ag--rule-ink {
+    border-top: 1px solid var(--ink);
+    padding-top: 24px;
+  }
+  .ag--rule-line {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+  }
+  .ag--dividers {
+    gap: 0;
+    row-gap: 36px;
+  }
+  .ag--dividers .ag__item {
+    padding: 0 24px;
+    border-left: 1px solid var(--line);
+  }
+  .ag--dividers .ag__item:first-child {
+    border-left: 0;
+  }
+  .ag__item {
+    display: flex;
+    flex-direction: column;
+  }
+  .ag__item--rule {
+    border-top: 1px solid var(--ink);
+    padding-top: var(--rule-pad, 20px);
+  }
+  .ag__item--rule-line {
+    border-top: 1px solid var(--line);
+    padding-top: var(--rule-pad, 20px);
+  }
+  .ag__item--border {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+  .ag-empty {
+    margin: 0;
+    padding: 24px 0;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+</style>

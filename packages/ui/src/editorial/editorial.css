@@ -1,0 +1,205 @@
+/*
+ * Editorial kit tokens and shared layout rules. Colors and fonts come from the site theme
+ * (--color-*, --font-*); the rest is the editorial type scale.
+ */
+.ed {
+  --ink: var(--color-text);
+  --ink-muted: var(--color-muted);
+  --ink-subtle: var(--color-dim);
+  --accent: var(--color-accent);
+  --accent-hover: var(--color-accent-hover);
+  /* Accent for small text: darker when the brand red lacks AA contrast (theme accentText). */
+  --accent-text: var(--color-accent-text, var(--color-accent));
+  --line: var(--color-line);
+  --sunken: var(--color-surface);
+  --deep: var(--color-deep);
+  --premium: var(--color-premium, #cbbfa9);
+  --gutter: clamp(16px, 3.13vw, 40px);
+
+  --medal-grand: var(--color-accent);
+  --medal-oro: #b8a57e;
+  --medal-plata: #9c9c9c;
+  --medal-bronce: #9a6b4b;
+  --medal-mencion: #d9d6d1;
+
+  --news-lead-size: 64px;
+  --news-l-size: 28px;
+  --news-m-size: 20px;
+  --news-s-size: 16px;
+  --dek-size: 19px;
+  --kicker-size: 13px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 150ms;
+
+  container: ed / inline-size;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  background: var(--color-bg);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+.ed a {
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.ed a:hover {
+  color: var(--accent-text);
+}
+
+.ed ::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Responsive helpers shared by every editorial block (container width, not viewport). */
+@container ed (max-width: 960px) {
+  .ed [data-r="stack"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .ed [data-r="div"] {
+    display: none !important;
+  }
+}
+
+@container ed (max-width: 760px) {
+  .ed [data-r="table"] {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+    row-gap: 2px !important;
+  }
+  .ed [data-r="table"] > *:nth-child(n + 3) {
+    grid-column: 2;
+  }
+  .ed [data-r="table"] > *,
+  .ed [data-r="tstack"] > * {
+    text-align: left !important;
+  }
+  .ed [data-r="tstack"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 4px !important;
+  }
+  .ed [data-r="thead"] {
+    display: none !important;
+  }
+}
+
+.ed-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Small uppercase list title with an ink rule ("RESULTADOS PUBLICADOS"). */
+.ed .ed-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: var(--accent-text);
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+}
+
+/* "Ver las 100 ↗" style link under a list. */
+.ed .ed-more {
+  display: inline-block;
+  padding-top: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Buttons (links styled as the design system Button, md size). */
+.ed .ed-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 24px;
+  align-self: flex-start;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.ed .ed-btn:hover {
+  background: var(--ink);
+  color: #fff;
+}
+.ed .ed-btn--primary {
+  background: var(--accent-text);
+  border-color: var(--accent-text);
+  color: #fff;
+}
+.ed .ed-btn--primary:hover {
+  background: var(--deep);
+  border-color: var(--deep);
+  color: #fff;
+}
+
+/* Filter chips (client-side filters). */
+.ed .ed-chip {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ed .ed-chip[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Small uppercase sidebar title ("CÓMO SE ELABORA"). */
+.ed .ed-aside-title {
+  margin: 0;
+  font-weight: 400;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: var(--accent-text);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+}
+
+/* Two-line band heading ("LO QUE CUBRIMOS / TODOS LOS GALARDONES"). */
+.ed .ed-heading2 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ed .ed-heading2__eyebrow {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: var(--accent-text);
+  text-transform: uppercase;
+}
+.ed .ed-heading2__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(22px, 3.13vw, 40px);
+  line-height: 0.9;
+  text-transform: uppercase;
+}

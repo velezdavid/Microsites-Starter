@@ -1,0 +1,99 @@
+---
+import type { MastheadConfig } from "../types";
+
+interface Props {
+  config: MastheadConfig;
+  lang?: string;
+}
+
+const { config, lang = "es" } = Astro.props;
+const { homeHref, locale, logo, nav, current } = config;
+// Build-time date, refreshed in the browser so cached pages never show an old day.
+const fmt = (d: Date) => {
+  const s = d.toLocaleDateString(`${lang}-EC`, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "America/Guayaquil" });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+const isCurrent = (href: string) => !!current && (current === href || current.startsWith(`${href}/`));
+---
+
+<header class="mh">
+  <div class="mh__date">
+    <span data-ed-today data-lang={lang}>{fmt(new Date())}</span>&nbsp;·&nbsp;{locale}
+  </div>
+  <div class="mh__logo">
+    <a href={homeHref} aria-label={`${logo.alt}, inicio`}>
+      <img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} />
+    </a>
+  </div>
+  <nav class="mh__nav" aria-label="Secciones">
+    {
+      nav.map((l) => (
+        <a href={l.href} aria-current={isCurrent(l.href) ? "page" : undefined}>
+          {l.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ed-today]").forEach((el) => {
+    const s = new Date().toLocaleDateString(`${el.dataset.lang}-EC`, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "America/Guayaquil",
+    });
+    el.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+  });
+</script>
+
+<style>
+  .mh__date {
+    border-bottom: 1px solid var(--line);
+    padding: 0 var(--gutter);
+    height: 37px;
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    font-weight: 500;
+    flex-wrap: wrap;
+  }
+  .mh__logo {
+    display: flex;
+    justify-content: center;
+    padding: 32px var(--gutter) 26px;
+  }
+  .mh__logo a {
+    display: flex;
+  }
+  .mh__logo img {
+    display: block;
+    width: 270px;
+    max-width: 100%;
+    height: auto;
+  }
+  .mh__nav {
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding: 0 var(--gutter);
+    display: flex;
+    justify-content: center;
+    gap: 0 clamp(20px, 3.13vw, 40px);
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .mh__nav a {
+    padding: 14px 0;
+  }
+  .mh__nav a[aria-current="page"] {
+    color: var(--accent-text);
+    border-bottom: 2px solid var(--accent);
+  }
+</style>

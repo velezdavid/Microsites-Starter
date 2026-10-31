@@ -1,0 +1,151 @@
+---
+import type { EdDirectoryIntroBlock } from "../registry-types";
+
+type Props = Omit<EdDirectoryIntroBlock, "_type">;
+
+const { eyebrow, title, text, search, totals, sideWidth = 500 } = Astro.props;
+---
+
+<div class="di" data-r="stack" style={`grid-template-columns:minmax(0,1fr) ${sideWidth}px`}>
+  <div class="di__heading">
+    <span class="di__eyebrow">{eyebrow}</span>
+    <h1 class="di__title">{title}<span class="di__dot">.</span></h1>
+    {text && <p class="di__text">{text}</p>}
+  </div>
+  <div class="di__side">
+    {
+      search && (
+        <form class="di__search" role="search" data-ed-directory-search>
+          <label class="ed-visually-hidden" for="di-search">
+            {search.placeholder}
+          </label>
+          <input id="di-search" class="di__input" type="search" placeholder={search.placeholder} autocomplete="off" />
+          <button class="di__button" type="submit">
+            {search.button}
+          </button>
+        </form>
+      )
+    }
+    <div class="di__totals">
+      {
+        totals.map((t) => (
+          <div class="di__total">
+            <span class="di__value">{t.value}</span>
+            <span class="di__label">{t.label}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  // Sends the query to the directory on the page (EdDirectory listens to "ed:directory").
+  document.querySelectorAll<HTMLFormElement>("[data-ed-directory-search]").forEach((form) => {
+    const input = form.querySelector("input")!;
+    const send = () => document.dispatchEvent(new CustomEvent("ed:directory", { detail: { q: input.value } }));
+    input.addEventListener("input", send);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      send();
+      document.querySelector("[data-ed-directory]")?.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+</script>
+
+<style>
+  .di {
+    padding: 48px var(--gutter) 0;
+    display: grid;
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: end;
+  }
+  .di__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .di__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .di__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(58px, 9.38vw, 120px);
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+  .di__dot {
+    color: var(--accent);
+  }
+  .di__text {
+    margin: 0;
+    max-width: 560px;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  .di__side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .di__search {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .di__input {
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--ink);
+    border-right: 0;
+    border-radius: 0;
+    font-size: 15px;
+    outline: none;
+    background: #fff;
+    color: var(--ink);
+  }
+  .di__input:focus {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .di__button {
+    height: 52px;
+    padding: 0 22px;
+    border: 0;
+    background: var(--accent-text);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .di__totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(90px, calc(100% / 3 - 32px)), 1fr));
+    border-top: 1px solid var(--ink);
+    row-gap: 36px;
+  }
+  .di__total {
+    padding: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .di__value {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.13vw, 40px);
+    line-height: 1;
+  }
+  .di__label {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+</style>

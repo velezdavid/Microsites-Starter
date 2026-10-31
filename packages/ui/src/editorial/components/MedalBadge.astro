@@ -1,0 +1,64 @@
+---
+import type { MedalLevel } from "../types";
+
+interface Props {
+  level?: MedalLevel;
+  label?: string;
+  /** Only the colored square. */
+  compact?: boolean;
+}
+
+const LABELS: Record<MedalLevel, string> = {
+  grand: "Gran Premio",
+  oro: "Oro",
+  plata: "Plata",
+  bronce: "Bronce",
+  mencion: "Mención",
+  finalista: "Finalista",
+};
+
+const { level = "oro", label, compact = false } = Astro.props;
+const text = label ?? LABELS[level];
+---
+
+<span class="medal" title={compact ? text : undefined}>
+  <span class:list={["medal__sq", `medal__sq--${level}`]} aria-hidden="true"></span>
+  {compact ? <span class="ed-visually-hidden">{text}</span> : text}
+</span>
+
+<style>
+  .medal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .medal__sq {
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+  .medal__sq--grand {
+    background: var(--medal-grand);
+  }
+  .medal__sq--oro {
+    background: var(--medal-oro);
+  }
+  .medal__sq--plata {
+    background: var(--medal-plata);
+  }
+  .medal__sq--bronce {
+    background: var(--medal-bronce);
+  }
+  .medal__sq--mencion {
+    background: var(--medal-mencion);
+  }
+  .medal__sq--finalista {
+    border: 1px solid var(--ink);
+  }
+</style>

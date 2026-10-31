@@ -1,0 +1,74 @@
+---
+import type { EdCtaBoxBlock } from "../registry-types";
+
+type Props = Omit<EdCtaBoxBlock, "_type">;
+
+const { eyebrow, title, text, cta, dark = false, block = false, variant } = Astro.props;
+const lines = Array.isArray(title) ? title : [title];
+---
+
+<div class:list={["cb", { "cb--dark": dark, "cb--plain": variant === "plain" }]}>
+  {eyebrow && <span class="cb__eyebrow">{eyebrow}</span>}
+  {lines.length > 0 && <span class="cb__title">{lines.map((l, i) => (i > 0 ? <><br />{l}</> : l))}</span>}
+  <p class="cb__text">{text}</p>
+  <a class:list={["ed-btn ed-btn--primary", { "cb__btn--block": block }]} href={cta.href}>{cta.label} ↗</a>
+</div>
+
+<style>
+  .cb {
+    background: var(--sunken);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .cb--dark {
+    background: var(--deep);
+    color: #fff;
+    padding: clamp(16px, 2.19vw, 28px);
+  }
+  .cb--plain {
+    background: none;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--ink);
+    gap: 12px;
+  }
+  .cb--plain .cb__eyebrow {
+    font-size: 14px;
+  }
+  .cb--plain .cb__text {
+    font-size: 14px;
+  }
+  .cb__eyebrow {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .cb--dark .cb__title {
+    font-size: 32px;
+    line-height: 0.92;
+  }
+  .cb--dark .cb__eyebrow {
+    color: var(--accent);
+  }
+  .cb--dark .cb__text {
+    color: #d0d0d0;
+  }
+  .cb__btn--block {
+    width: 100%;
+    align-self: stretch;
+  }
+  .cb__title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .cb__text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+</style>

@@ -1,0 +1,309 @@
+---
+import type { EdHubIntroBlock } from "../registry-types";
+
+type Props = Omit<EdHubIntroBlock, "_type">;
+
+const { eyebrow, lines, text, search, totals } = Astro.props;
+const searchId = "hub-search";
+---
+
+<div class="hi" data-r="stack">
+  <div class="hi__heading">
+    <span class="hi__eyebrow">{eyebrow}</span>
+    <h1 class="hi__title">
+      {
+        lines.map((l, i) => (
+          <>
+            {i > 0 && <br />}
+            {i === lines.length - 1 ? <span class="hi__accent">{l}</span> : l}
+          </>
+        ))
+      }
+    </h1>
+    {text && <p class="hi__text">{text}</p>}
+  </div>
+
+  <div class="hi__side">
+    {
+      search && (
+        <div class="hs" data-hub-search data-empty={search.empty}>
+          <label class="hs__label" for={searchId}>
+            {search.label}
+          </label>
+          <form class="hs__row" role="search" onsubmit="return false">
+            <input id={searchId} class="hs__input" type="search" placeholder={search.placeholder} autocomplete="off" />
+            <button class="hs__button" type="submit">
+              {search.button}
+            </button>
+          </form>
+          <div class="hs__results" hidden>
+            <div class="hs__list" />
+            {search.more && (
+              <a class="hs__more" href={search.more.href}>
+                {search.more.label} ↗
+              </a>
+            )}
+          </div>
+          <div class="hs__suggest">
+            <span class="hs__suggest-label">{search.suggestionsLabel}</span>
+            {search.suggestions.map((s) => (
+              <button type="button" class="hs__chip" data-q={s}>
+                {s}
+              </button>
+            ))}
+          </div>
+          <script type="application/json" set:html={JSON.stringify(search.index).replace(/</g, "\\u003c")} />
+        </div>
+      )
+    }
+    {
+      totals && (
+        <div class="hi__totals">
+          {totals.map((t) => (
+            <div class="hi__total">
+              <span class="hi__total-value">{t.value}</span>
+              <span class="hi__total-label">{t.label}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  type Entry = { title: string; detail: string; result: string; href: string };
+  const norm = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase();
+
+  document.querySelectorAll<HTMLElement>("[data-hub-search]").forEach((box) => {
+    const input = box.querySelector<HTMLInputElement>("input")!;
+    const results = box.querySelector<HTMLElement>(".hs__results")!;
+    const list = box.querySelector<HTMLElement>(".hs__list")!;
+    const index: Entry[] = JSON.parse(box.querySelector("script[type='application/json']")!.textContent ?? "[]");
+
+    const render = () => {
+      const q = norm(input.value.trim());
+      results.hidden = !q;
+      if (!q) return;
+      const hits = index.filter((e) => norm(`${e.title} ${e.detail} ${e.result}`).includes(q)).slice(0, 5);
+      list.replaceChildren(
+        ...(hits.length
+          ? hits.map((e) => {
+              const a = document.createElement("a");
+              a.href = e.href;
+              a.className = "hs__hit";
+              a.innerHTML = '<span class="hs__hit-text"><span class="hs__hit-title"></span><span class="hs__hit-detail"></span></span><span class="hs__hit-result"></span>';
+              a.querySelector(".hs__hit-title")!.textContent = e.title;
+              a.querySelector(".hs__hit-detail")!.textContent = e.detail;
+              a.querySelector(".hs__hit-result")!.textContent = e.result;
+              return a;
+            })
+          : [Object.assign(document.createElement("div"), { className: "hs__empty", textContent: box.dataset.empty ?? "" })]),
+      );
+    };
+    input.addEventListener("input", render);
+    box.querySelectorAll<HTMLButtonElement>("[data-q]").forEach((b) =>
+      b.addEventListener("click", () => {
+        input.value = b.dataset.q ?? "";
+        render();
+        input.focus();
+      }),
+    );
+    document.addEventListener("click", (e) => {
+      if (!box.contains(e.target as Node)) results.hidden = true;
+    });
+    input.addEventListener("focus", render);
+  });
+</script>
+
+<style>
+  .hi {
+    padding: 48px var(--gutter) 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 500px;
+    gap: clamp(20px, 4.38vw, 56px);
+    align-items: end;
+  }
+  .hi__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .hi__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .hi__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(50px, 8.13vw, 104px);
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+  .hi__accent {
+    color: var(--accent);
+  }
+  .hi__text {
+    margin: 0;
+    max-width: 560px;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  .hi__side {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+  }
+  .hs__label {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+  .hs__row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .hs__input {
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--ink);
+    border-right: 0;
+    border-radius: 0;
+    font-size: 15px;
+    outline: none;
+    background: #fff;
+    color: var(--ink);
+  }
+  .hs__input:focus {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .hs__button {
+    height: 52px;
+    padding: 0 22px;
+    border: 0;
+    background: var(--accent-text);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .hs__results {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(10, 10, 10, 0.06), 0 28px 60px -16px rgba(10, 10, 10, 0.28);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+  }
+  .hs__results[hidden] {
+    display: none;
+  }
+  .hs__list {
+    display: flex;
+    flex-direction: column;
+  }
+  .hs :global(.hs__hit) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hs :global(.hs__hit-text) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hs :global(.hs__hit-title) {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .hs :global(.hs__hit-detail) {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .hs :global(.hs__hit-result) {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .hs :global(.hs__empty) {
+    padding: 16px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .hs__more {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .hs__suggest {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    align-items: center;
+  }
+  .hs__suggest-label {
+    color: var(--ink-muted);
+    margin-right: 4px;
+  }
+  .hs__chip {
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .hs__chip:hover {
+    border-color: var(--ink);
+  }
+  .hi__totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(90px, calc(100% / 3 - 32px)), 1fr));
+    border-top: 1px solid var(--ink);
+    margin-top: 14px;
+    row-gap: 36px;
+  }
+  .hi__total {
+    padding: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hi__total-value {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.13vw, 40px);
+    line-height: 1;
+  }
+  .hi__total-label {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+</style>

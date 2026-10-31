@@ -1,0 +1,86 @@
+---
+import type { EdRankingSnapshotBlock } from "../types";
+
+type Props = Omit<EdRankingSnapshotBlock, "_type">;
+
+const { title, note, rows, highlight = 3, more } = Astro.props;
+---
+
+<div class="rs">
+  <span class="rs__head">
+    <span class="rs__title">{title}</span>
+    {note && <span class="rs__note">{note}</span>}
+  </span>
+  <ol class="rs__rows">
+    {
+      rows.map((r, i) => (
+        <li class="rs__row">
+          <span class:list={["rs__pos", { "rs__pos--top": i < highlight }]}>{r.position}</span>
+          {r.href ? <a class="rs__name" href={r.href}>{r.name}</a> : <span class="rs__name">{r.name}</span>}
+          <span class:list={["rs__change", { "rs__change--down": r.change?.startsWith("▼") }]}>{r.change}</span>
+        </li>
+      ))
+    }
+  </ol>
+  {more && <a class="ed-more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .rs {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 20px 24px;
+  }
+  .rs__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ink);
+    flex-wrap: wrap;
+  }
+  .rs__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .rs__note {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+  .rs__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .rs__row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 40px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rs__pos {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1;
+  }
+  .rs__pos--top {
+    color: var(--accent);
+  }
+  .rs__name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .rs__change {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+  }
+  .rs__change--down {
+    color: var(--ink-muted);
+  }
+</style>

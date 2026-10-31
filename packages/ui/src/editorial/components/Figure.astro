@@ -1,0 +1,18 @@
+---
+import type { EdFigureBlock } from "../types";
+import ImageFrame from "./ImageFrame.astro";
+
+type Props = Omit<EdFigureBlock, "_type">;
+
+const { image, ratio = "21/9" } = Astro.props;
+---
+
+<div class="fg">
+  <ImageFrame image={image} ratio={ratio} />
+</div>
+
+<style>
+  .fg {
+    padding: 40px var(--gutter) 0;
+  }
+</style>

@@ -1,0 +1,329 @@
+---
+/**
+ * Small event-page blocks rendered by one component: action bar, stat row, program,
+ * venue, highlight box and year links.
+ */
+import type {
+  EdActionBarBlock,
+  EdHighlightBoxBlock,
+  EdProgramBlock,
+  EdStatRowBlock,
+  EdVenueBlock,
+  EdYearLinksBlock,
+  EdHeadingBlock,
+} from "../registry-types";
+import ImageFrame from "./ImageFrame.astro";
+
+interface Props {
+  block: EdActionBarBlock | EdStatRowBlock | EdProgramBlock | EdVenueBlock | EdHighlightBoxBlock | EdYearLinksBlock | EdHeadingBlock;
+}
+
+const { block: b } = Astro.props;
+---
+
+{
+  b._type === "edHeading" && (
+    <div class:list={["hd ed-heading2", { "hd--lg": b.size === "lg" }]}>
+      <span class="ed-heading2__eyebrow">{b.eyebrow}</span>
+      <h2 class="ed-heading2__title">{b.title}</h2>
+    </div>
+  )
+}
+
+{
+  b._type === "edActionBar" && (
+    <div class="ab3">
+      {b.actions.map((a) => (
+        <a class:list={["ed-btn", { "ed-btn--primary": a.primary }]} href={a.href} download={a.download ? "" : undefined}>
+          {a.label} ↗
+        </a>
+      ))}
+    </div>
+  )
+}
+
+{
+  b._type === "edStatRow" && (
+    <div class="sr">
+      {b.text && <p class="sr__text">{b.text}</p>}
+      <div class="sr__items">
+        {b.items.map((d) => (
+          <div class="sr__item">
+            <span class="sr__value">{d.value}</span>
+            <span class="sr__label">{d.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+{
+  b._type === "edProgram" && (
+    <div class="pg2">
+      <div class="pg2__list">
+        {b.items.map((p) => (
+          <div class="pg2__row">
+            <span class="pg2__time">{p.time}</span>
+            <span class="pg2__text">
+              <span class="pg2__title">{p.title}</span>
+              <span class="pg2__detail">{p.detail}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      {b.note && <span class="pg2__note">{b.note}</span>}
+    </div>
+  )
+}
+
+{
+  b._type === "edVenue" && (
+    <div class="vn" data-r="stack">
+      <ImageFrame image={{ label: b.image }} ratio="3/2" />
+      <div class="vn__info">
+        <span class="vn__name">{b.name}</span>
+        <span class="vn__address">
+          {b.address.map((l, i) => (
+            <>
+              {i > 0 && <br />}
+              {l}
+            </>
+          ))}
+        </span>
+        {b.note && <span class="vn__note">{b.note}</span>}
+        {b.map && (
+          <a class="vn__map" href={b.map.href} target="_blank" rel="noopener noreferrer">
+            {b.map.label} ↗
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
+
+{
+  b._type === "edHighlightBox" && (
+    <div class="hb">
+      <span class="hb__eyebrow">{b.eyebrow}</span>
+      <span class="hb__title">{b.title}</span>
+      {b.items.map((t) => (
+        <div class="hb__row">
+          <span class="hb__mark">{t.mark}</span>
+          <span class="hb__name">{t.name}</span>
+        </div>
+      ))}
+      {b.more && (
+        <a class="hb__more" href={b.more.href}>
+          {b.more.label} ↗
+        </a>
+      )}
+    </div>
+  )
+}
+
+{
+  b._type === "edYearLinks" && (
+    <div class="yl">
+      <span class="ed-aside-title">{b.title}</span>
+      {b.items.map((p) => {
+        const Tag = p.href ? "a" : "div";
+        return (
+          <Tag href={p.href} class="yl__row">
+            <span class="yl__year">{p.year}</span>
+            <span class="yl__detail">{p.detail}</span>
+            <span aria-hidden="true">{p.href ? "↗" : ""}</span>
+          </Tag>
+        );
+      })}
+    </div>
+  )
+}
+
+<style>
+  .hd {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+  }
+  .hd.hd--lg :global(.ed-heading2__title) {
+    font-size: clamp(23px, 3.75vw, 48px);
+  }
+  .ab3 {
+    padding: 18px var(--gutter);
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .sr {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .sr__text {
+    margin: 0;
+    max-width: 680px;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+  .sr__items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(90px, calc(100% / 3 - 32px)), 1fr));
+    border-top: 1px solid var(--ink);
+    row-gap: 36px;
+  }
+  .sr__item {
+    padding: 20px 24px 0;
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sr__item:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .sr__value {
+    font-family: var(--font-display);
+    font-size: clamp(27px, 4.38vw, 56px);
+    line-height: 0.85;
+  }
+  .sr__label {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .pg2 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .pg2__list {
+    display: flex;
+    flex-direction: column;
+  }
+  .pg2__row {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 24px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .pg2__time {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .pg2__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .pg2__title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .pg2__detail,
+  .pg2__note {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .pg2__note {
+    font-size: 12px;
+  }
+  .vn {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .vn__info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .vn__name {
+    font-family: var(--font-display);
+    font-size: 34px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .vn__address {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .vn__note {
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+  .vn__map {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .hb {
+    background: var(--sunken);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .hb__eyebrow {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .hb__title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .hb__row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    font-size: 14px;
+    align-items: baseline;
+  }
+  .hb__mark {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--accent-text);
+  }
+  .hb__name {
+    font-weight: 600;
+  }
+  .hb__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .yl {
+    display: flex;
+    flex-direction: column;
+  }
+  .yl__row {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .yl__year {
+    font-family: var(--font-display);
+    font-size: 22px;
+  }
+  .yl__detail {
+    font-size: 13px;
+  }
+</style>

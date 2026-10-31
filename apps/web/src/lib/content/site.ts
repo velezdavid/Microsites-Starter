@@ -160,6 +160,8 @@ let cached: Promise<SiteDefinition> | undefined;
 export function getSite({ preview = false } = {}): Promise<SiteDefinition> {
   const slug = import.meta.env.SITE_SLUG;
   if (!slug) throw new Error("Missing SITE_SLUG. Set it in apps/web/.env.");
+  // Static port of a new microsite (content in code, before its Sanity schemas exist).
+  if (import.meta.env.SITE_LOCAL_DATA === "true") return import("../../sites/local").then((m) => m.getLocalSite(slug));
   if (import.meta.env.DEV || isPreviewSite) return fetchSite(slug, preview);
   cached ??= fetchSite(slug, false);
   return cached;

@@ -1,0 +1,78 @@
+---
+import type { EdPositionsBlock } from "../registry-types";
+
+type Props = Omit<EdPositionsBlock, "_type">;
+
+const { label, years, rows } = Astro.props;
+const tracks = `minmax(0,1fr) repeat(${years.length},64px)`;
+const last = years.length - 1;
+---
+
+<div class="ps" role="table">
+  <div class="ps__grid ps__head" style={`grid-template-columns:${tracks}`} role="row">
+    <span role="columnheader">{label}</span>
+    {years.map((y, i) => <span role="columnheader" class:list={["ps__right", { "ps__current": i === last }]}>{y}</span>)}
+  </div>
+  {
+    rows.map((p) => {
+      const Tag = p.href ? "a" : "div";
+      return (
+        <Tag href={p.href} class="ps__grid ps__row" style={`grid-template-columns:${tracks}`} role="row">
+          <span class="ps__name" role="rowheader">{p.name}</span>
+          {p.values.map((v, i) => (
+            <span role="cell" class:list={["ps__value", { "ps__value--old": i < last - 1, "ps__value--current": i === last }]}>
+              {v || "—"}
+            </span>
+          ))}
+        </Tag>
+      );
+    })
+  }
+</div>
+
+<style>
+  .ps {
+    display: flex;
+    flex-direction: column;
+  }
+  .ps__grid {
+    display: grid;
+    gap: 8px;
+  }
+  .ps__head {
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .ps__right {
+    text-align: right;
+  }
+  .ps__current {
+    color: var(--accent-text);
+  }
+  .ps__row {
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ps__name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .ps__value {
+    font-family: var(--font-display);
+    font-size: 24px;
+    text-align: right;
+  }
+  .ps__value--old {
+    color: var(--ink-muted);
+  }
+  .ps__value--current {
+    font-size: 30px;
+    color: var(--accent);
+  }
+</style>

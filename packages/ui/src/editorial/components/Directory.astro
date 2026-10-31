@@ -1,0 +1,395 @@
+---
+import type { EdDirectoryBlock } from "../registry-types";
+
+type Props = Omit<EdDirectoryBlock, "_type">;
+
+const {
+  title,
+  sortLabel,
+  sorts,
+  sectorLabel,
+  sectors,
+  cityLabel,
+  cities,
+  verifiedLabel,
+  verifiedBadge,
+  columns,
+  rows,
+  count,
+  empty,
+  loadMore,
+  pageSize,
+} = Astro.props;
+
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+const LETTERS = [..."ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"];
+const present = new Set(rows.map((r) => norm(r.name)[0].toUpperCase()));
+---
+
+<div class="dr" data-ed-directory data-page-size={pageSize} data-count={count}>
+  <div class="dr__head">
+    <h2 class="dr__title">{title}</h2>
+    <div class="dr__sorts" role="group" aria-label={sortLabel}>
+      <span class="dr__group-label">{sortLabel}</span>
+      <button type="button" class="dr__chip dr__chip--sm" data-sort="rec" aria-pressed="true">{sorts[0]}</button>
+      <button type="button" class="dr__chip dr__chip--sm" data-sort="az" aria-pressed="false">{sorts[1]}</button>
+    </div>
+  </div>
+
+  <div class="dr__filters">
+    <div class="dr__filter-row" role="group" aria-label={sectorLabel}>
+      <span class="dr__group-label dr__group-label--fixed">{sectorLabel}</span>
+      {
+        sectors.map((s, i) => (
+          <button type="button" class="dr__chip" data-sector={i === 0 ? "" : s} aria-pressed={i === 0 ? "true" : "false"}>
+            {s}
+          </button>
+        ))
+      }
+    </div>
+    <div class="dr__filter-row" role="group" aria-label={cityLabel}>
+      <span class="dr__group-label dr__group-label--fixed">{cityLabel}</span>
+      {
+        cities.map((c, i) => (
+          <button type="button" class="dr__chip" data-city={i === 0 ? "" : c} aria-pressed={i === 0 ? "true" : "false"}>
+            {c}
+          </button>
+        ))
+      }
+      <button type="button" class="dr__chip dr__verified" data-verified aria-pressed="false">✓ {verifiedLabel}</button>
+    </div>
+    <div class="dr__letters" role="group" aria-label="Inicial">
+      <button type="button" class="dr__letter" data-letter="" aria-pressed="true" aria-label="Todas">·</button>
+      {
+        LETTERS.map((l) => (
+          <button type="button" class="dr__letter" data-letter={l} aria-pressed="false" disabled={!present.has(l)}>
+            {l}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="dr__table">
+    <div class="dr__grid dr__thead" data-r="thead">
+      <span></span><span>{columns[0]}</span><span>{columns[1]}</span><span>{columns[2]}</span>
+      <span class="dr__right">{columns[3]}</span><span>{columns[4]}</span>
+    </div>
+    <div class="dr__rows">
+      {
+        rows.map((r, i) => (
+          <a
+            href={r.href}
+            class="dr__grid dr__row"
+            data-r="table"
+            data-name={norm(r.name)}
+            data-sector={r.sector}
+            data-city={r.city}
+            data-verified={r.verified ? "1" : "0"}
+            data-count={r.count}
+            data-index={i}
+            hidden={i >= pageSize}
+          >
+            <span class="dr__ini" aria-hidden="true">{r.initials}</span>
+            <span class="dr__name">
+              <span class="dr__name-text">{r.name}</span>
+              {r.verified && <span class="dr__badge">✓ {verifiedBadge}</span>}
+            </span>
+            <span class="dr__muted">{r.sector}</span>
+            <span class="dr__muted">{r.city}</span>
+            <span class="dr__count">{r.count}</span>
+            <span class="dr__last">{r.last}</span>
+          </a>
+        ))
+      }
+    </div>
+    <p class="dr__empty" hidden>{empty}</p>
+  </div>
+
+  <div class="dr__foot">
+    <span class="dr__shown">{count.replace("{n}", String(Math.min(pageSize, rows.length)))}</span>
+    <button type="button" class="ed-btn dr__more" hidden={rows.length <= pageSize}>{loadMore} ↗</button>
+  </div>
+</div>
+
+<script>
+  const norm = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase();
+
+  document.querySelectorAll<HTMLElement>("[data-ed-directory]").forEach((box) => {
+    const pageSize = Number(box.dataset.pageSize ?? 16);
+    const list = box.querySelector<HTMLElement>(".dr__rows")!;
+    const rows = [...list.querySelectorAll<HTMLElement>(".dr__row")];
+    const empty = box.querySelector<HTMLElement>(".dr__empty")!;
+    const shown = box.querySelector<HTMLElement>(".dr__shown")!;
+    const more = box.querySelector<HTMLButtonElement>(".dr__more")!;
+    const state = { q: "", sector: "", city: "", letter: "", verified: false, sort: "rec", limit: pageSize };
+
+    const apply = () => {
+      const q = norm(state.q.trim());
+      const matches = rows.filter(
+        (r) =>
+          (!state.sector || r.dataset.sector === state.sector) &&
+          (!state.city || r.dataset.city === state.city) &&
+          (!state.verified || r.dataset.verified === "1") &&
+          (!state.letter || (r.dataset.name ?? "").startsWith(state.letter.toLowerCase())) &&
+          (r.dataset.name ?? "").includes(q),
+      );
+      matches.sort((a, b) =>
+        state.sort === "az"
+          ? (a.dataset.name ?? "").localeCompare(b.dataset.name ?? "", "es")
+          : Number(b.dataset.count) - Number(a.dataset.count) || Number(a.dataset.index) - Number(b.dataset.index),
+      );
+      rows.forEach((r) => (r.hidden = true));
+      matches.forEach((r, i) => {
+        list.appendChild(r);
+        r.hidden = i >= state.limit;
+      });
+      const visible = Math.min(matches.length, state.limit);
+      empty.hidden = matches.length > 0;
+      more.hidden = matches.length <= state.limit;
+      shown.textContent = (box.dataset.count ?? "").replace("{n}", String(visible));
+    };
+
+    const group = (selector: string, key: "sector" | "city" | "letter" | "sort", attr: string) => {
+      const buttons = box.querySelectorAll<HTMLButtonElement>(selector);
+      buttons.forEach((b) =>
+        b.addEventListener("click", () => {
+          buttons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+          state[key] = b.getAttribute(attr) ?? "";
+          state.limit = pageSize;
+          apply();
+        }),
+      );
+    };
+    group("[data-sector]", "sector", "data-sector");
+    group("[data-city]", "city", "data-city");
+    group("[data-letter]", "letter", "data-letter");
+    group("[data-sort]", "sort", "data-sort");
+
+    const ver = box.querySelector<HTMLButtonElement>("[data-verified]")!;
+    ver.addEventListener("click", () => {
+      state.verified = !state.verified;
+      ver.setAttribute("aria-pressed", String(state.verified));
+      apply();
+    });
+    more.addEventListener("click", () => {
+      state.limit += pageSize;
+      apply();
+    });
+
+    // Search box of the page header and sector shortcuts of the sidebar.
+    document.addEventListener("ed:directory", (e) => {
+      const { q, sector } = (e as CustomEvent<{ q?: string; sector?: string }>).detail;
+      if (q !== undefined) state.q = q;
+      if (sector !== undefined) {
+        const chip = [...box.querySelectorAll<HTMLButtonElement>("[data-sector]")].find((b) => b.dataset.sector === sector);
+        if (chip) chip.click();
+        else {
+          state.sector = sector;
+          box.querySelectorAll("[data-sector]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        }
+        box.scrollIntoView({ behavior: "smooth" });
+      }
+      state.limit = pageSize;
+      apply();
+    });
+  });
+</script>
+
+<style>
+  .dr {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .dr__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 24px;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .dr__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(23px, 3.75vw, 48px);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .dr__sorts,
+  .dr__filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .dr__group-label {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    margin-right: 6px;
+    text-transform: uppercase;
+  }
+  .dr__group-label--fixed {
+    width: 72px;
+    margin-right: 0;
+  }
+  .dr__filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dr__chip {
+    font-size: 12px;
+    font-weight: 600;
+    height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .dr__chip--sm {
+    height: 32px;
+    padding: 0 10px;
+  }
+  .dr__chip[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+  }
+  .dr__verified {
+    margin-left: auto;
+  }
+  .dr__letters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 6px 0;
+  }
+  .dr__letter {
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    width: 100%;
+    padding: 0;
+    height: 30px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .dr__letter:disabled {
+    color: var(--ink-subtle);
+    cursor: default;
+  }
+  .dr__letter[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+  }
+  .dr__table,
+  .dr__rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .dr__grid {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 150px 110px 96px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .dr__thead {
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .dr__right {
+    text-align: right;
+  }
+  .dr__row {
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dr__row[hidden] {
+    display: none;
+  }
+  .dr__ini {
+    width: 58px;
+    height: 58px;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--ink-muted);
+  }
+  .dr__name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .dr__name-text {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .dr__badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    border: 1px solid var(--ink);
+    padding: 1px 6px;
+    text-transform: uppercase;
+  }
+  .dr__muted {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .dr__count {
+    font-family: var(--font-display);
+    font-size: 26px;
+    line-height: 1;
+    text-align: right;
+  }
+  .dr__last {
+    font-size: 13px;
+  }
+  .dr__empty {
+    margin: 0;
+    padding: 32px 0;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+  .dr__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .dr__shown {
+    color: var(--ink-muted);
+  }
+  .dr__more[hidden] {
+    display: none;
+  }
+</style>

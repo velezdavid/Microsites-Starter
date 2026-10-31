@@ -1,0 +1,67 @@
+---
+import type { EdWeightsBlock } from "../registry-types";
+
+type Props = Omit<EdWeightsBlock, "_type">;
+
+const { title, text, items, more } = Astro.props;
+---
+
+<div class="wg">
+  <span class="ed-aside-title">{title}</span>
+  {text && <p class="wg__text">{text}</p>}
+  {
+    items.map((m) => (
+      <div class="wg__item">
+        <span>{m.label}</span>
+        <span class="wg__value">{m.value}%</span>
+        <span class="wg__bar" aria-hidden="true">
+          <span style={`width:${m.value}%`} />
+        </span>
+      </div>
+    ))
+  }
+  {more && <a class="wg__more" href={more.href}>{more.label} ↗</a>}
+</div>
+
+<style>
+  .wg {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .wg__text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .wg__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 10px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .wg__value {
+    font-weight: 600;
+    text-align: right;
+  }
+  .wg__bar {
+    grid-column: 1 / -1;
+    height: 4px;
+    background: var(--sunken);
+    position: relative;
+  }
+  .wg__bar span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: var(--ink);
+  }
+  .wg__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

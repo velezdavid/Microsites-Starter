@@ -1,0 +1,50 @@
+---
+import type { EdCardGridBlock } from "../registry-types";
+
+type Props = Omit<EdCardGridBlock, "_type">;
+
+const { items, columns = 4 } = Astro.props;
+---
+
+<div class="cg" style={`grid-template-columns:repeat(auto-fit,minmax(max(170px,calc(100% / ${columns} - 32px)),1fr))`}>
+  {
+    items.map((o) => (
+      <a href={o.href} class="cg__card">
+        <span class="cg__eyebrow">{o.eyebrow}</span>
+        <span class="cg__title">{o.title}</span>
+        <span class="cg__detail">{o.detail}</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .cg {
+    display: grid;
+    gap: 24px;
+  }
+  .cg__card {
+    background: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cg__eyebrow {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .cg__title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .cg__detail {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+</style>

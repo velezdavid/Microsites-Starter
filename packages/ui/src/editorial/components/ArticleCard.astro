@@ -1,0 +1,140 @@
+---
+import type { ArticleTeaser, CardVariant } from "../types";
+import Byline from "./Byline.astro";
+import ImageFrame from "./ImageFrame.astro";
+import Kicker from "./Kicker.astro";
+
+interface Props {
+  article: ArticleTeaser;
+  variant?: CardVariant;
+  showImage?: boolean;
+  ratio?: string;
+  /** Position for the "ranked" variant. */
+  index?: number;
+  headingLevel?: 2 | 3;
+}
+
+const { article, variant = "standard", showImage = false, ratio, index, headingLevel = 3 } = Astro.props;
+const { href, kicker, title, dek, author, date, readTime, image, sponsored } = article;
+const withImage = (showImage || !!image?.src) && variant !== "compact" && variant !== "ranked";
+const frameRatio = ratio ?? (variant === "lead" ? "16/9" : variant === "horizontal" ? "4/3" : "3/2");
+const showDek = !!dek && variant !== "compact" && variant !== "ranked";
+const H = (headingLevel === 2 ? "h2" : "h3") as "h2" | "h3";
+---
+
+<a href={href} class:list={["card", `card--${variant}`, { "card--image": withImage, "card--sponsored": sponsored }]}>
+  {variant === "ranked" && <span class="card__index">{index}</span>}
+  {withImage && <ImageFrame class="card__image" image={image} ratio={frameRatio} />}
+  <div class="card__body">
+    {
+      (kicker || sponsored) && (
+        <div class="card__meta">
+          {sponsored && <Kicker sponsored />}
+          {kicker && <Kicker>{kicker}</Kicker>}
+        </div>
+      )
+    }
+    <H class="card__title">{title}</H>
+    {showDek && <p class="card__dek">{dek}</p>}
+    {(author || date) && <Byline author={author} date={date} readTime={readTime} />}
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card--lead,
+  .card--lead .card__body {
+    gap: 18px;
+  }
+  .card :global(.card__image) {
+    margin-bottom: 6px;
+  }
+  .card__meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .card__title {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--news-m-size);
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    transition: color var(--dur-fast) var(--ease);
+    text-wrap: pretty;
+  }
+  .card:hover .card__title {
+    color: var(--accent-text);
+  }
+  .card--lead .card__title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--news-lead-size);
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+  .card--large .card__title {
+    font-size: var(--news-l-size);
+    line-height: 1.15;
+  }
+  .card--compact .card__title,
+  .card--ranked .card__title {
+    font-weight: 600;
+    font-size: var(--news-s-size);
+    line-height: 1.3;
+  }
+  .card__dek {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+  }
+  .card--lead .card__dek {
+    font-size: var(--dek-size);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 640px;
+  }
+  .card--horizontal.card--image {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .card--horizontal :global(.card__image) {
+    margin-bottom: 0;
+  }
+  .card--ranked {
+    flex-direction: row;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .card--ranked .card__body {
+    gap: 6px;
+  }
+  .card__index {
+    font-family: var(--font-display);
+    font-size: 36px;
+    line-height: 1;
+    color: var(--accent);
+    width: 32px;
+    flex: none;
+  }
+  .card--sponsored {
+    background: #f6f2ea;
+    padding: 16px;
+  }
+</style>

@@ -5,6 +5,10 @@ interface ImportMetaEnv {
   readonly PUBLIC_SANITY_DATASET: string;
   readonly SANITY_API_READ_TOKEN?: string;
   readonly SITE_SLUG: string;
+  /** "editorial" renders the news/registry template; empty = landing template. */
+  readonly SITE_TEMPLATE?: string;
+  /** "true": content from apps/web/src/sites/<slug> instead of Sanity (static port stage). */
+  readonly SITE_LOCAL_DATA?: string;
   /** "true" enables visual editing (Sanity Presentation) in `astro dev` only. */
   readonly SANITY_VISUAL_EDITING?: string;
   /** "true" only on the preview site: server-rendered, drafts for sessions opened from the Studio. */

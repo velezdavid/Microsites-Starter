@@ -1,0 +1,102 @@
+---
+import type { EdEditionCardsBlock } from "../registry-types";
+
+type Props = Omit<EdEditionCardsBlock, "_type">;
+
+const { items } = Astro.props;
+---
+
+<div class="ec">
+  {
+    items.map((e) => (
+      <a href={e.href} class="ec__card">
+        <span class="ec__top">
+          <span class="ec__type">{e.type}</span>
+          <span class="ec__date">{e.date}</span>
+        </span>
+        <span class="ec__name">{e.name}</span>
+        <span class="ec__summary">{e.summary}</span>
+        <span class="ec__list">
+          {e.top.map((w) => (
+            <span class="ec__row">
+              <span class="ec__mark">{w.mark}</span>
+              <span class="ec__winner">{w.name}</span>
+            </span>
+          ))}
+        </span>
+        <span class="ec__cta">{e.cta} ↗</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .ec {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(170px, calc(100% / 3 - 32px)), 1fr));
+    row-gap: 36px;
+  }
+  .ec__card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 clamp(16px, 2.19vw, 28px);
+    border-left: 1px solid var(--line);
+  }
+  .ec__card:first-child {
+    border-left: 0;
+  }
+  .ec__top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .ec__type {
+    color: var(--accent-text);
+  }
+  .ec__date {
+    color: var(--ink-muted);
+  }
+  .ec__name {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.81vw, 36px);
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+  .ec__summary {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .ec__list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--ink);
+  }
+  .ec__row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ec__mark {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--accent-text);
+  }
+  .ec__winner {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .ec__cta {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

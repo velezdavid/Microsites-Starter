@@ -1,0 +1,144 @@
+---
+import type { EdRecognitionsBlock } from "../registry-types";
+import MedalBadge from "./MedalBadge.astro";
+
+type Props = Omit<EdRecognitionsBlock, "_type">;
+
+const { filters, years } = Astro.props;
+---
+
+<div class="rg" data-ed-recognitions>
+  <div class="rg__filters" role="group" aria-label="Filtrar reconocimientos">
+    {
+      filters.map((f, i) => (
+        <button type="button" class="rg__chip" data-type={f.type ?? ""} aria-pressed={i === 0 ? "true" : "false"}>
+          {f.label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="rg__years">
+    {
+      years.map((y) => (
+        <div class="rg__year" data-year>
+          <span class="rg__year-label">{y.year}</span>
+          <div class="rg__items">
+            {y.items.map((r) => {
+              const Tag = r.href ? "a" : "div";
+              return (
+                <Tag href={r.href} class="rg__item" data-r="tstack" data-type={r.type}>
+                  <span class="rg__award">
+                    <span class="rg__name">{r.award}</span>
+                    <span class="rg__cat">{r.category}</span>
+                  </span>
+                  <span class="rg__type">{r.type}</span>
+                  <MedalBadge level={r.level} label={r.result} />
+                </Tag>
+              );
+            })}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ed-recognitions]").forEach((box) => {
+    const chips = box.querySelectorAll<HTMLButtonElement>(".rg__chip");
+    chips.forEach((chip) =>
+      chip.addEventListener("click", () => {
+        chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+        const type = chip.dataset.type ?? "";
+        box.querySelectorAll<HTMLElement>("[data-year]").forEach((year) => {
+          let visible = 0;
+          year.querySelectorAll<HTMLElement>(".rg__item").forEach((item) => {
+            item.hidden = !!type && item.dataset.type !== type;
+            if (!item.hidden) visible++;
+          });
+          year.hidden = visible === 0;
+        });
+      }),
+    );
+  });
+</script>
+
+<style>
+  .rg {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .rg__filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .rg__chip {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    line-height: normal;
+  }
+  .rg__chip[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+  }
+  .rg__years {
+    display: flex;
+    flex-direction: column;
+  }
+  .rg__year {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    border-top: 1px solid var(--ink);
+  }
+  .rg__year[hidden],
+  .rg__item[hidden] {
+    display: none;
+  }
+  .rg__year-label {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.81vw, 36px);
+    line-height: 1;
+    padding-top: 12px;
+  }
+  .rg__items {
+    display: flex;
+    flex-direction: column;
+  }
+  .rg__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px 150px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rg__award {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .rg__name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .rg__cat {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .rg__type {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+</style>

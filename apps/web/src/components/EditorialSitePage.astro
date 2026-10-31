@@ -1,0 +1,46 @@
+---
+import { BaseLayout, EdFooter, EditorialRenderer, Masthead } from "@microsites/ui/editorial";
+import bebasNeue400 from "@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2?url";
+import montserrat400 from "@fontsource/montserrat/files/montserrat-latin-400-normal.woff2?url";
+import "../styles/fonts-editorial.css";
+import { isPreviewSite } from "../lib/content/preview";
+import { structuredData } from "../lib/content/structured-data";
+import type { PageDefinition, SiteDefinition } from "../lib/content/types";
+import { pageHref } from "../lib/content/types";
+
+interface Props {
+  site: SiteDefinition;
+  page: PageDefinition;
+  preview?: boolean;
+}
+
+const { site, page } = Astro.props;
+if (!site.editorial || !page.editorial) throw new Error(`Page "/${page.path}" has no editorial content (SITE_TEMPLATE=editorial).`);
+const { masthead, footer } = site.editorial;
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  image={page.seo.image}
+  lang={site.lang}
+  theme={site.theme}
+  analytics={site.analytics}
+  scripts={site.scripts}
+  canonical={new URL(pageHref(page.path), site.url).href}
+  siteName={site.name}
+  noIndex={page.seo.noIndex || isPreviewSite}
+  jsonLd={structuredData(site, page)}
+>
+  <Fragment slot="head">
+    <link rel="preload" href={bebasNeue400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={montserrat400} as="font" type="font/woff2" crossorigin />
+  </Fragment>
+  <div class="ed">
+    <Masthead config={{ ...masthead, current: page.editorial.section }} lang={site.lang} />
+    <main id="main">
+      <EditorialRenderer blocks={page.editorial.blocks} />
+    </main>
+    <EdFooter config={footer} flush={page.editorial.flushFooter} />
+  </div>
+</BaseLayout>

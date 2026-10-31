@@ -1,0 +1,83 @@
+---
+import type { EdOrganizerBlock } from "../registry-types";
+
+type Props = Omit<EdOrganizerBlock, "_type">;
+
+const { title, name, detail, siblingsLabel, siblings } = Astro.props;
+---
+
+<div class="og">
+  <span class="ed-aside-title">{title}</span>
+  <div class="og__card">
+    <span class="og__logo" aria-hidden="true">Logo</span>
+    <span class="og__text">
+      <span class="og__name">{name}</span>
+      <span class="og__detail">{detail}</span>
+    </span>
+  </div>
+  {siblings.length > 0 && siblingsLabel && <span class="og__label">{siblingsLabel}</span>}
+  {
+    siblings.map((s) => (
+      <a href={s.href} class="og__sibling">
+        <span>{s.label}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .og {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .og__card {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+  }
+  .og__logo {
+    width: 58px;
+    height: 58px;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .og__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .og__name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .og__detail {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .og__label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .og__sibling {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+</style>

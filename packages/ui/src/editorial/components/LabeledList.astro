@@ -1,0 +1,57 @@
+---
+import type { EdLabeledListBlock } from "../registry-types";
+
+type Props = Omit<EdLabeledListBlock, "_type">;
+
+const { title, items } = Astro.props;
+---
+
+<div class="lb">
+  <span class="ed-aside-title">{title}</span>
+  {
+    items.map((l) => {
+      const Tag = l.href ? "a" : "div";
+      return (
+        <Tag href={l.href} class="lb__item">
+          <span class="lb__label">{l.label}</span>
+          <span class="lb__row">
+            <span>{l.name}</span>
+            {l.value && <span class="lb__value">{l.value}</span>}
+          </span>
+        </Tag>
+      );
+    })
+  }
+</div>
+
+<style>
+  .lb {
+    display: flex;
+    flex-direction: column;
+  }
+  .lb__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .lb__label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .lb__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    flex-wrap: wrap;
+  }
+  .lb__value {
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+</style>

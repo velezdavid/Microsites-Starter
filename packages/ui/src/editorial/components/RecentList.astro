@@ -1,0 +1,91 @@
+---
+import type { EdRecentListBlock } from "../registry-types";
+
+type Props = Omit<EdRecentListBlock, "_type">;
+
+const { title, more, items } = Astro.props;
+---
+
+<div class="rc">
+  <div class="rc__head">
+    <span class="rc__title">{title}</span>
+    {more && <a class="rc__more" href={more.href}>{more.label} ↗</a>}
+  </div>
+  <div class="rc__grid">
+    {
+      items.map((r) => (
+        <a href={r.href} class="rc__item">
+          <span class="rc__date">{r.date}</span>
+          <span class="rc__name">{r.name}</span>
+          <span class="rc__result">
+            <strong>{r.result}</strong> · {r.award}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .rc {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .rc__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .rc__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .rc__more {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .rc__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(max(170px, calc(100% / 4 - 32px)), 1fr));
+    row-gap: 36px;
+  }
+  .rc__item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 24px;
+    border-left: 1px solid var(--line);
+  }
+  .rc__item:first-child {
+    border-left: 0;
+  }
+  .rc__date {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .rc__name {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .rc__result {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .rc__result strong {
+    font-weight: 600;
+  }
+</style>

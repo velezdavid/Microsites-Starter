@@ -1,0 +1,92 @@
+---
+import type { EdTabBarBlock } from "../registry-types";
+
+type Props = Omit<EdTabBarBlock, "_type">;
+
+const { items, chips, inset = false, gap = 36, spaceTop } = Astro.props;
+---
+
+<div class:list={["tb", { "tb--inset": inset }]} style={spaceTop != null ? `margin-top:${spaceTop}px` : undefined}>
+  <nav class="tb__tabs" style={`gap:0 ${gap}px`} aria-label="Secciones de la página">
+    {
+      items.map((t) => (
+        <a href={t.href} aria-current={t.current ? "page" : undefined}>
+          {t.label}
+        </a>
+      ))
+    }
+  </nav>
+  {
+    chips && (
+      <div class="tb__chips">
+        <span class="tb__chips-label">{chips.label}</span>
+        {chips.items.map((c) => (
+          <a href={c.href} class="tb__chip" aria-current={c.current ? "page" : undefined}>
+            {c.label}
+          </a>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .tb {
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding: 0 var(--gutter);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .tb--inset {
+    margin-left: var(--gutter);
+    margin-right: var(--gutter);
+    padding: 0;
+  }
+  .tb__tabs {
+    display: flex;
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .tb__tabs a {
+    padding: 14px 0;
+    border-bottom: 2px solid transparent;
+  }
+  .tb__tabs a[aria-current="page"] {
+    color: var(--accent-text);
+    border-bottom-color: var(--accent);
+  }
+  .tb__chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tb__chips-label {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink-muted);
+    margin-right: 8px;
+    text-transform: uppercase;
+  }
+  .tb__chip {
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  :global(.ed) .tb__chip[aria-current="page"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+  }
+</style>

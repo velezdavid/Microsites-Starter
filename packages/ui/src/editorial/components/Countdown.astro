@@ -1,0 +1,32 @@
+---
+interface Props {
+  /** ISO date (yyyy-mm-dd). */
+  date: string;
+  /** Text rendered at build time; the browser replaces it with today's count. */
+  fallback: string;
+  /** "days": only the number; "flag": "Quedan N días" / "En N semanas" / "Hoy" / "Finalizado". */
+  format?: "days" | "flag";
+  class?: string;
+}
+
+const { date, fallback, format = "flag", class: className } = Astro.props;
+---
+
+<span class={className} data-ed-countdown={date} data-format={format}>{fallback}</span>
+
+<script>
+  // Days left until each date, counted in Ecuador's time zone so static pages stay current.
+  const today = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Guayaquil" }));
+  today.setHours(0, 0, 0, 0);
+  document.querySelectorAll<HTMLElement>("[data-ed-countdown]").forEach((el) => {
+    const [y, m, d] = (el.dataset.edCountdown ?? "").split("-").map(Number);
+    if (!y) return;
+    const days = Math.round((new Date(y, m - 1, d).getTime() - today.getTime()) / 864e5);
+    if (el.dataset.format === "days") {
+      el.textContent = String(Math.max(0, days));
+      return;
+    }
+    el.textContent = days < 0 ? "Finalizado" : days === 0 ? "Hoy" : days <= 45 ? `Quedan ${days} ${days === 1 ? "día" : "días"}` : `En ${Math.round(days / 7)} semanas`;
+    el.dataset.soon = String(days >= 0 && days <= 14);
+  });
+</script>

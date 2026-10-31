@@ -1,0 +1,234 @@
+---
+import type { EdForm } from "../registry-types";
+
+interface Props {
+  form: EdForm;
+}
+
+const { form } = Astro.props;
+const id = (n: string) => `f-${form.name}-${n}`;
+---
+
+<div class="ff" data-ed-form-box>
+  <form class="ff__form" name={form.name} method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate data-ed-validate>
+    <input type="hidden" name="form-name" value={form.name} />
+    <p class="ed-visually-hidden"><label>No llenar <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+    <div class="ff__grid" data-r="stack">
+      {
+        form.fields.map((f) => (
+          <label class:list={["ff__field", { "ff__field--full": f.full || f.type === "textarea" }]} for={id(f.name)}>
+            <span class="ff__label">
+              {f.label} {f.required && <span class="ff__req">*</span>}
+            </span>
+            {f.type === "select" ? (
+              <select id={id(f.name)} name={f.name} required={f.required} class="ff__input">
+                <option value="">{f.placeholder ?? "Selecciona"}</option>
+                {f.options?.map((o) => (
+                  <option value={o}>{o}</option>
+                ))}
+              </select>
+            ) : f.type === "textarea" ? (
+              <textarea id={id(f.name)} name={f.name} required={f.required} placeholder={f.placeholder} class="ff__input ff__input--area" rows="5" />
+            ) : (
+              <input id={id(f.name)} name={f.name} type={f.type} required={f.required} placeholder={f.placeholder} class="ff__input" autocomplete={f.type === "email" ? "email" : undefined} />
+            )}
+            {f.error && (
+              <span class="ff__error" hidden>
+                {f.error}
+              </span>
+            )}
+          </label>
+        ))
+      }
+    </div>
+    {
+      form.checkbox && (
+        <label class="ff__check">
+          <input type="checkbox" name={form.checkbox.name} value="si" checked={form.checkbox.checked} />
+          <span class="ff__box" aria-hidden="true" />
+          <span>{form.checkbox.label}</span>
+        </label>
+      )
+    }
+    <button class="ff__submit" type="submit">{form.submit}</button>
+    {form.note && <span class="ff__note">{form.note}</span>}
+  </form>
+  <div class="ff__done" role="status" hidden>
+    {form.success.eyebrow && <span class="ff__done-eyebrow">{form.success.eyebrow}</span>}
+    <span class="ff__done-title">{form.success.title}</span>
+    <p class="ff__done-text">{form.success.text}</p>
+  </div>
+</div>
+
+<script>
+  // Netlify Forms: validates in the browser, submits in place and shows the success message.
+  document.querySelectorAll<HTMLElement>("[data-ed-form-box]").forEach((box) => {
+    const form = box.querySelector<HTMLFormElement>("form[data-ed-validate]")!;
+    const done = box.querySelector<HTMLElement>(".ff__done")!;
+    const check = (el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
+      const ok = el.checkValidity();
+      el.toggleAttribute("aria-invalid", !ok);
+      const err = el.closest("label")?.querySelector<HTMLElement>(".ff__error");
+      if (err) err.hidden = ok;
+      return ok;
+    };
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fields = [...form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input[required],select[required],textarea[required]")];
+      const valid = fields.map(check).every(Boolean);
+      if (!valid) {
+        fields.find((f) => !f.checkValidity())?.focus();
+        return;
+      }
+      const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString();
+      try {
+        const res = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        if (!res.ok) throw new Error(String(res.status));
+        form.hidden = true;
+        done.hidden = false;
+      } catch {
+        form.submit();
+      }
+    });
+    form.addEventListener("input", (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.hasAttribute("aria-invalid")) check(el);
+    });
+  });
+</script>
+
+<style>
+  .ff__form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0;
+  }
+  .ff__form[hidden],
+  .ff__done[hidden],
+  .ff__error[hidden] {
+    display: none;
+  }
+  .ff__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px 12px;
+  }
+  .ff__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ff__field--full {
+    grid-column: 1 / -1;
+  }
+  .ff__label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .ff__req {
+    color: var(--accent-text);
+  }
+  .ff__input {
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    background: #fff;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    min-width: 0;
+    width: 100%;
+  }
+  .ff__input--area {
+    height: auto;
+    padding: 12px 14px;
+    resize: vertical;
+  }
+  .ff__input:focus {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .ff__input[aria-invalid] {
+    border-color: var(--accent);
+  }
+  .ff__error {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+  .ff__check {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .ff__check input {
+    position: absolute;
+    opacity: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+  .ff__box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--ink);
+    background: #fff;
+  }
+  .ff__check input:checked + .ff__box {
+    background: var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='9' viewBox='0 0 11 9'%3E%3Cpath d='M1 4.5 4 7.5 10 1.5' fill='none' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") center no-repeat;
+  }
+  .ff__check input:focus-visible + .ff__box {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .ff__submit {
+    height: 52px;
+    border: 0;
+    background: var(--accent-text);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .ff__submit:hover {
+    background: var(--deep);
+  }
+  .ff__note {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+  }
+  .ff__done {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ff__done-eyebrow {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .ff__done-title {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.13vw, 40px);
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+  .ff__done-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+</style>

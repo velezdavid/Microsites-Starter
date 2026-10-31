@@ -1,0 +1,97 @@
+---
+import type { EdNumberedColumnsBlock } from "../registry-types";
+import { pad2 } from "../../utils";
+
+type Props = Omit<EdNumberedColumnsBlock, "_type">;
+
+const { items, variant } = Astro.props;
+---
+
+<div
+  class:list={["nc", { "nc--cards": variant === "cards", "nc--big": variant === "big" }]}
+  style={`grid-template-columns:repeat(auto-fit,minmax(max(170px,calc(100% / ${Math.max(3, items.length)} - 32px)),1fr))`}
+>
+  {
+    items.map((a, i) => (
+      <div class="nc__item">
+        <span class="nc__num">{pad2(i + 1)}</span>
+        <h3 class="nc__title">{a.title}</h3>
+        <p class="nc__text">{a.text}</p>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .nc {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .nc__item {
+    padding: 20px 24px 0;
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .nc__item:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .nc--cards {
+    border-top: 0;
+    gap: 24px;
+  }
+  .nc--cards .nc__item,
+  .nc--cards .nc__item:first-child {
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--ink);
+  }
+  .nc--cards .nc__title {
+    font-size: 26px;
+    line-height: 0.95;
+  }
+  .nc--cards .nc__text {
+    line-height: 1.55;
+  }
+  .nc--big {
+    border-top: 0;
+    row-gap: 36px;
+  }
+  .nc--big .nc__item {
+    padding: 0 24px;
+    gap: 12px;
+  }
+  .nc--big .nc__item:first-child {
+    border-left: 0;
+  }
+  .nc--big .nc__num {
+    font-size: clamp(31px, 5vw, 64px);
+    line-height: 0.8;
+    letter-spacing: 0;
+  }
+  .nc--big .nc__title {
+    font-size: 26px;
+    line-height: 0.95;
+  }
+  .nc__num {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.24em;
+    color: var(--accent-text);
+  }
+  .nc__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .nc__text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+</style>

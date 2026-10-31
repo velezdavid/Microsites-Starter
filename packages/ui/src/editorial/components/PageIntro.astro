@@ -1,0 +1,93 @@
+---
+import type { EdPageIntroBlock } from "../types";
+
+type Props = Omit<EdPageIntroBlock, "_type">;
+
+const { eyebrow, title, text, tabs } = Astro.props;
+---
+
+<div class="pi">
+  <div class="pi__top">
+    <div class="pi__heading">
+      <span class="pi__eyebrow">{eyebrow}</span>
+      <h1 class="pi__title">{title}<span class="pi__dot">.</span></h1>
+    </div>
+    {text && <p class="pi__text">{text}</p>}
+  </div>
+  {
+    tabs && tabs.length > 0 && (
+      <nav class="pi__tabs" aria-label={`Filtrar ${title}`}>
+        {tabs.map((t) => (
+          <a href={t.href} aria-current={t.current ? "page" : undefined}>
+            {t.label}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+</div>
+
+<style>
+  .pi {
+    padding: 48px var(--gutter) 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .pi__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: clamp(20px, 3.13vw, 40px);
+    flex-wrap: wrap;
+  }
+  .pi__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .pi__eyebrow {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+  }
+  .pi__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(58px, 9.38vw, 120px);
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+  .pi__dot {
+    color: var(--accent);
+  }
+  .pi__text {
+    margin: 0 0 8px;
+    max-width: 440px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .pi__tabs {
+    display: flex;
+    gap: 0 32px;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .pi__tabs a {
+    padding: 14px 0;
+    border-bottom: 2px solid transparent;
+    line-height: normal;
+  }
+  .pi__tabs a[aria-current="page"] {
+    color: var(--accent-text);
+    border-bottom-color: var(--accent);
+  }
+</style>

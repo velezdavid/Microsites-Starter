@@ -1,0 +1,105 @@
+---
+import type { EdFooterConfig } from "../types";
+
+interface Props {
+  config: EdFooterConfig;
+  /** No space above (page ends with a full-width band). */
+  flush?: boolean;
+}
+
+const { logo, tagline, columns, bottomLeft, bottomRight } = Astro.props.config;
+const { flush = false } = Astro.props;
+---
+
+<footer class:list={["ft", { "ft--flush": flush }]}>
+  <div class="ft__grid" data-r="stack">
+    <div class="ft__brand">
+      <img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
+      <p>{tagline}</p>
+    </div>
+    {
+      columns.map((c) => (
+        <div class="ft__col">
+          <span class="ft__title">{c.title}</span>
+          {c.links.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+  <div class="ft__bottom">
+    <span>{bottomLeft}</span>
+    <span>{bottomRight}</span>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--deep);
+    color: #fff;
+    margin-top: 80px;
+    padding: 56px var(--gutter) 28px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3.44vw, 44px);
+  }
+  .ft--flush {
+    margin-top: 0;
+  }
+  .ft__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  .ft__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ft__brand img {
+    display: block;
+    width: 170px;
+    height: auto;
+  }
+  .ft__brand p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d0d0d0;
+    max-width: 260px;
+  }
+  .ft__col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ft__title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .ft .ft__col a {
+    font-size: 13px;
+    line-height: 2;
+    color: #d0d0d0;
+  }
+  .ft .ft__col a:hover {
+    color: #fff;
+  }
+  .ft__bottom {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #333;
+    padding-top: 16px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.32em;
+    color: #9a9a9a;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+</style>
