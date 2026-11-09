@@ -11,10 +11,20 @@ import { pageHref } from "../lib/content/types";
 interface Props {
   site: SiteDefinition;
   page: PageDefinition;
+  /** Drafts + click-to-edit overlays (Sanity Presentation). */
   preview?: boolean;
 }
 
-const { site, page } = Astro.props;
+const { site, page, preview = false } = Astro.props;
+// Imported only for previews. The inline env checks let the public build drop it (no CSS/JS there).
+const PreviewOverlay =
+  ((import.meta.env.DEV && import.meta.env.SANITY_VISUAL_EDITING === "true") || import.meta.env.SANITY_PREVIEW_SITE === "true") && preview
+    ? (await import("./PreviewOverlay.astro")).default
+    : undefined;
+if (isPreviewSite) {
+  Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  Astro.response.headers.set("Cache-Control", "private, no-store");
+}
 if (!site.editorial || !page.editorial) throw new Error(`Page "/${page.path}" has no editorial content (SITE_TEMPLATE=editorial).`);
 const { masthead, footer } = site.editorial;
 ---
@@ -43,4 +53,5 @@ const { masthead, footer } = site.editorial;
     </main>
     <EdFooter config={footer} flush={page.editorial.flushFooter} />
   </div>
+  {PreviewOverlay && <PreviewOverlay />}
 </BaseLayout>

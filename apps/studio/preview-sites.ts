@@ -5,4 +5,5 @@
  */
 export const previewSites: { slug: string; title: string; url: string }[] = [
   { slug: "mediaudience", title: "Mediaudience", url: "https://mediaudience-preview.netlify.app" },
+  { slug: "ranking", title: "Ranking EC", url: "https://rankingec-preview.netlify.app" },
 ];

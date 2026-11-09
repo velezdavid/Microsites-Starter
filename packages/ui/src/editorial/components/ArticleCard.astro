@@ -16,7 +16,8 @@ interface Props {
 
 const { article, variant = "standard", showImage = false, ratio, index, headingLevel = 3 } = Astro.props;
 const { href, kicker, title, dek, author, date, readTime, image, sponsored } = article;
-const withImage = (showImage || !!image?.src) && variant !== "compact" && variant !== "ranked";
+// Only real photos get a frame: an article without one collapses to text (no grey placeholder).
+const withImage = !!image?.src && variant !== "compact" && variant !== "ranked";
 const frameRatio = ratio ?? (variant === "lead" ? "16/9" : variant === "horizontal" ? "4/3" : "3/2");
 const showDek = !!dek && variant !== "compact" && variant !== "ranked";
 const H = (headingLevel === 2 ? "h2" : "h3") as "h2" | "h3";

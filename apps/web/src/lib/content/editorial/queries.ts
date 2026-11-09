@@ -21,7 +21,7 @@ export const EDITORIAL_QUERY = /* groq */ `{
   "articles": *[_type == "article" && site._ref == $siteId && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc){
     _id, type, kicker, title, highlight, dek, "slug": slug.current, "authors": authors[]->{name, role},
     publishedAt, place, "image": image${image}, layout, photoCredit, keyFacts[]{value, label}, body, readingMinutes,
-    "topics": topics[]->{title, "slug": slug.current}, "mentions": mentions[]._ref, sponsored, sponsor{brand, label, note}
+    "topics": topics[]->{title, "slug": slug.current}, "mentions": mentions[]._ref, sponsored, sponsor{brand, label, note}, seo{title, description, noIndex}
   },
   "organizers": *[_type == "organizer" && site._ref == $siteId]{_id, name, "slug": slug.current, description, website},
   "organizations": *[_type == "organization" && site._ref == $siteId && defined(slug.current)] | order(name asc){
@@ -128,6 +128,7 @@ export interface RawArticle {
   mentions?: string[];
   sponsored?: boolean;
   sponsor?: { brand: string; label?: string; note?: string };
+  seo?: { title?: string; description?: string; noIndex?: boolean };
 }
 
 export interface RawOrganizer {

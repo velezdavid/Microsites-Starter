@@ -12,7 +12,7 @@ const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 const localPreviewUrl = process.env.SANITY_STUDIO_PREVIEW_URL;
 const previewTools = localPreviewUrl
   ? [previewTool({ name: "presentation", title: "Vista previa (local)", origin: localPreviewUrl })]
-  : previewSites.map((s) => previewTool({ name: `preview-${s.slug}`, title: previewSites.length > 1 ? `Vista previa · ${s.title}` : "Vista previa", origin: s.url }));
+  : previewSites.map((s) => previewTool({ name: `preview-${s.slug}`, title: previewSites.length > 1 ? `Vista previa · ${s.title}` : "Vista previa", origin: s.url, siteSlug: s.slug }));
 
 if (!projectId) {
   throw new Error("Missing SANITY_STUDIO_PROJECT_ID. Copy .env.example to .env.");

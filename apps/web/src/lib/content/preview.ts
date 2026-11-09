@@ -65,6 +65,11 @@ const DISPLAY_FIELDS = new Set([
   "label", "value", "meta", "headline", "description", "blurb", "badge", "stat", "statLabel", "bullets", "chips",
   "tagline", "bottomText", "backLabel", "minimalBackLabel", "legalLabel", "listLabel", "linkLabel", "chipsLabel",
   "highlightsLabel", "tipsLabel", "contactTitle", "contactSubtitle", "submitLabel", "successMessage", "placeholder",
+  // Editorial sites. Left out on purpose: values the code compares or filters by (category, city, sector,
+  // unit, name, highlight), since the invisible markers would make equal values differ.
+  "kicker", "dek", "summary", "role", "person", "locale", "bottomLeft", "bottomRight", "menuLabel", "submit",
+  "successTitle", "successText", "successEyebrow", "formTitle", "formNote", "benefitsTitle", "benefitsEyebrow",
+  "access", "what", "when", "detail", "address", "photoCredit", "credit",
 ]);
 const SKIP_PARENTS = new Set(["seo", "theme", "analytics", "scripts", "redirects", "verificationFiles", "attributes", "options"]);
 
@@ -73,6 +78,8 @@ const stegaFilter: NonNullable<StegaConfig["filter"]> = (props) => {
   const keys = sourcePath.filter((s): s is string => typeof s === "string");
   if (keys.some((k) => SKIP_PARENTS.has(k))) return false;
   const field = keys.at(-1);
+  // Event page titles are matched against their highlighted line.
+  if (keys[0] === "page" && field === "title") return false;
   return !!field && DISPLAY_FIELDS.has(field) && filterDefault(props);
 };
 
