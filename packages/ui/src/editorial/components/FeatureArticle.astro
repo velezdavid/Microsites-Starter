@@ -19,9 +19,9 @@ for (const n of body) {
 ---
 
 <div class="fa">
-  <ImageFrame image={{ label: image.label, src: image.src, alt: image.alt }} ratio="16/7" />
+  {image.src && <ImageFrame image={{ label: image.label, src: image.src, alt: image.alt }} ratio="16/7" />}
   {
-    (image.caption || image.credit) && (
+    image.src && (image.caption || image.credit) && (
       <p class="fa__caption">
         {image.caption}
         {image.credit && <span class="fa__credit"> · {image.credit}</span>}

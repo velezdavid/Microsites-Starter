@@ -133,7 +133,7 @@ export function organizationPages(c: EditorialContent, siteName: string): Listin
     const news = c
       .newsAbout([o.id], o.name, (a) => `${a.title} ${a.dek ?? ""}`)
       .slice(0, 4)
-      .map((a) => ({ ...c.teaser(a), author: a.author, date: shortDate(a.date), image: a.image?.src ? a.image : { label: "Imagen" } }));
+      .map((a) => ({ ...c.teaser(a), author: a.author, date: shortDate(a.date), image: a.image?.src ? a.image : undefined }));
     const peers = c.organizations
       .filter((x) => x.sector === o.sector)
       .sort((a, b) => count(b) - count(a))

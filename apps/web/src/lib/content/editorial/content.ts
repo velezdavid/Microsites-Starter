@@ -143,6 +143,7 @@ export interface Article {
   mentions: string[];
   sponsored: boolean;
   sponsor?: { brand: string; label?: string; note?: string };
+  seo?: { title?: string; description?: string; noIndex?: boolean };
 }
 
 export interface Award {
@@ -355,6 +356,7 @@ export class EditorialContent {
       mentions: a.mentions ?? [],
       sponsored: !!a.sponsored,
       sponsor: a.sponsored ? a.sponsor : undefined,
+      seo: a.seo,
     };
   }
 

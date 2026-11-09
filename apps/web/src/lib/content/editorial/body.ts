@@ -67,9 +67,11 @@ export function standardBody(c: EditorialContent, a: Article): ArticleBodyNode[]
       case "pullQuote":
         return [{ _type: "pullQuote", text: n.text, author: n.author, role: n.role }];
       case "bodyImage":
-        return n.image ? [{ _type: "image", image: c.image(n.image as RawImage, "Imagen", 1200), ratio: ratioOf(n.ratio) }] : [];
+        return n.image?.asset ? [{ _type: "image", image: c.image(n.image as RawImage, "Imagen", 1200), ratio: ratioOf(n.ratio) }] : [];
       case "imagePair":
-        return (n.images ?? []).map((im: PtBlock) => ({ _type: "image" as const, image: c.image(im.image as RawImage, "Foto", 1200), ratio: ratioOf(im.ratio) }));
+        return (n.images ?? [])
+          .filter((im: PtBlock) => im.image?.asset)
+          .map((im: PtBlock) => ({ _type: "image" as const, image: c.image(im.image as RawImage, "Foto", 1200), ratio: ratioOf(im.ratio) }));
       case "rankingTable": {
         const t = rankingTable(c, n);
         return t ? [t] : [];
@@ -108,7 +110,9 @@ export function featureBody(c: EditorialContent, a: Article): EdFeatureNode[] {
         return [{ _type: "pullQuote", text: n.text, author: n.author, role: n.role }];
       case "bodyImage":
       case "imagePair": {
-        const images: PtBlock[] = n._type === "imagePair" ? (n.images ?? []) : [n];
+        // Images without a file are left out; a pair with one photo left shows it alone.
+        const images: PtBlock[] = (n._type === "imagePair" ? (n.images ?? []) : [n]).filter((im: PtBlock) => im.image?.asset);
+        if (!images.length) return [];
         return [
           {
             _type: "imagePair",

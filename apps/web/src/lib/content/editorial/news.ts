@@ -1,3 +1,4 @@
+import { stegaClean } from "@sanity/client/stega";
 import type { EditorialBlock } from "@microsites/ui/editorial";
 import { featureBody, standardBody } from "./body";
 import { ARTICLE_TYPE_LABEL, articleHref, shortDate, type Article, type EditorialContent } from "./content";
@@ -116,7 +117,8 @@ export function articlePages(c: EditorialContent, siteName: string, siteUrl: str
   return c.articlesByDate.map((a) => {
     const section = sectionOf(c, a.type);
     const typeLabel = ARTICLE_TYPE_LABEL[a.type] ?? a.type;
-    const eyebrow = a.kicker.toLowerCase() === typeLabel.toLowerCase() ? typeLabel : `${typeLabel} · ${a.kicker}`;
+    // stegaClean: in previews the kicker carries invisible edit markers.
+    const eyebrow = stegaClean(a.kicker).toLowerCase() === typeLabel.toLowerCase() ? typeLabel : `${typeLabel} · ${a.kicker}`;
     const related = c.articlesByDate.filter((r) => r !== a).slice(0, 4);
     const readMore: EditorialBlock = {
       _type: "edColumns",
@@ -139,13 +141,17 @@ export function articlePages(c: EditorialContent, siteName: string, siteUrl: str
     };
     const shareUrl = new URL(articleHref(a.slug), siteUrl).href;
     const path = `actualidad/${a.slug}`;
-    const description = a.dek;
+    // The SEO fields of the article, when filled, replace its title and dek in search results.
+    const description = a.seo?.description || a.dek;
+    const noIndex = a.seo?.noIndex === true;
+    const seoTitle = a.seo?.title;
 
     // Long-form layout: full-bleed photo and a centered column.
     if (a.feature) {
       return {
         path,
-        title: `${siteName} · ${a.sponsored ? "Contenido de marca" : a.title}`,
+        title: `${siteName} · ${seoTitle || (a.sponsored ? "Contenido de marca" : a.title)}`,
+        noIndex,
         description,
         section: "/actualidad",
         blocks: [
@@ -183,7 +189,7 @@ export function articlePages(c: EditorialContent, siteName: string, siteUrl: str
         meta: [a.place, shortDate(a.date), a.readTime && `${a.readTime} de lectura`].filter(Boolean).join(" · "),
         shareUrl,
       },
-      { _type: "edFigure", image: a.image ?? { label: "Foto principal" } },
+      ...(a.image?.src ? ([{ _type: "edFigure", image: a.image }] as EditorialBlock[]) : []),
       {
         _type: "edArticleBody",
         keyFacts: a.keyFacts && { title: "Datos clave", items: a.keyFacts },
@@ -195,6 +201,6 @@ export function articlePages(c: EditorialContent, siteName: string, siteUrl: str
     if (mentions.length) blocks.push({ _type: "edMentions", eyebrow: "En el registro", title: "Mencionados en esta nota", items: mentions });
     blocks.push(readMore, newsletterBlock(c, newsText));
 
-    return { path, title: `${siteName} · ${a.title}`, description, blocks, section: "/actualidad" };
+    return { path, title: `${siteName} · ${seoTitle || a.title}`, description, noIndex, blocks, section: "/actualidad" };
   });
 }
