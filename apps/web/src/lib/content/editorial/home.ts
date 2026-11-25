@@ -27,27 +27,8 @@ export function homeBlocks(c: EditorialContent): EditorialBlock[] {
   const galas = c.upcomingEvents.filter((e) => e.type === "gala").slice(0, 3);
 
   const blocks: EditorialBlock[] = [];
-  if (lead) {
-    // Opening: lead story + two secondary stories.
-    blocks.push({
-      _type: "edColumns",
-      spaceTop: 40,
-      dividers: true,
-      columns: [
-        { width: "8fr", blocks: [{ _type: "edArticleCard", variant: "lead", showImage: true, article: c.teaser(lead, { dek: true, author: true, date: true, readTime: true }) }] },
-        { width: "4fr", blocks: [{ _type: "edArticleGrid", columns: 1, showImage: true, gap: 28, items: secondary.map((a) => c.teaser(a, { dek: true })) }] },
-      ],
-    });
-  }
-  if (newsRow.length) {
-    blocks.push({
-      _type: "edColumns",
-      spaceTop: 48,
-      columns: [{ blocks: [{ _type: "edArticleGrid", columns: 4, rule: "ink", dividers: true, items: newsRow.map((a) => c.teaser(a, { dek: true, date: true })) }] }],
-    });
-  }
 
-  // The registry this week.
+  // The registry this week (right under the masthead, before the opening story).
   const registry: EditorialBlock[] = [{ _type: "edSectionHeader", title: "El registro esta semana", more: { label: "Ir a Rankings", href: "/rankings" } }];
   const registryColumns = [{ width: "1.15fr", gap: 0, blocks: [{ _type: "edResultList", title: "Resultados publicados", items: c.publishedResults(3) }] as EditorialBlock[] }];
   if (snapshot) {
@@ -76,7 +57,27 @@ export function homeBlocks(c: EditorialContent): EditorialBlock[] {
     blocks: [{ _type: "edDeadlineList", title: "Convocatorias abiertas", items: c.openCalls.slice(0, 3), more: { label: "Calendario de eventos", href: "/eventos" } }],
   });
   registry.push({ _type: "edColumns", gap: 40, columns: registryColumns.map(({ width, ...col }) => (width ? { width, ...col } : col)) });
-  blocks.push({ _type: "edColumns", band: true, spaceTop: 64, columns: [{ gap: 32, blocks: registry }] });
+  blocks.push({ _type: "edColumns", band: true, spaceTop: 32, columns: [{ gap: 32, blocks: registry }] });
+
+  if (lead) {
+    // Opening: lead story + two secondary stories.
+    blocks.push({
+      _type: "edColumns",
+      spaceTop: 56,
+      dividers: true,
+      columns: [
+        { width: "8fr", blocks: [{ _type: "edArticleCard", variant: "lead", showImage: true, article: c.teaser(lead, { dek: true, author: true, date: true, readTime: true }) }] },
+        { width: "4fr", blocks: [{ _type: "edArticleGrid", columns: 1, showImage: true, gap: 28, items: secondary.map((a) => c.teaser(a, { dek: true })) }] },
+      ],
+    });
+  }
+  if (newsRow.length) {
+    blocks.push({
+      _type: "edColumns",
+      spaceTop: 48,
+      columns: [{ blocks: [{ _type: "edArticleGrid", columns: 4, rule: "ink", dividers: true, items: newsRow.map((a) => c.teaser(a, { dek: true, date: true })) }] }],
+    });
+  }
 
   // Interviews + most read.
   const [mainInterview, ...moreInterviews] = interviews;
