@@ -219,6 +219,7 @@ export function organizationPages(c: EditorialContent, siteName: string): Listin
         eyebrow: `Empresa · ${sectorName}`,
         verified: o.verified ? "Verificada" : undefined,
         name: o.name,
+        logo: o.logo?.asset ? c.image(o.logo, "Logo", 260) : undefined,
         meta: [o.city, o.founded && `Desde ${o.founded}`, o.employees && `${o.employees} colaboradores`].filter(Boolean).join(" · "),
         links: [...(o.website ? [{ label: hostname(o.website), href: o.website }] : []), ...(o.linkedin ? [{ label: "LinkedIn", href: o.linkedin }] : [])],
         medalsTitle: "Reconocimientos",

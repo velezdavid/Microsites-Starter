@@ -4,12 +4,22 @@ import MedalBadge from "./MedalBadge.astro";
 
 type Props = Omit<EdOrgHeaderBlock, "_type">;
 
-const { eyebrow, verified, name, meta, links, medalsTitle, medalsRange, medals } = Astro.props;
+const { eyebrow, verified, name, logo, meta, links, medalsTitle, medalsRange, medals } = Astro.props;
 ---
 
 <div class="oh">
   <div class="oh__id">
-    <span class="oh__logo" aria-hidden="true">Logo</span>
+    {
+      logo?.src ? (
+        <span class="oh__logo oh__logo--img">
+          <img src={logo.src} alt={logo.alt || `Logo de ${name}`} loading="lazy" decoding="async" />
+        </span>
+      ) : (
+        <span class="oh__logo" aria-hidden="true">
+          Logo
+        </span>
+      )
+    }
     <div class="oh__text">
       <span class="oh__tags">
         <span class="oh__eyebrow">{eyebrow}</span>
@@ -74,6 +84,15 @@ const { eyebrow, verified, name, meta, links, medalsTitle, medalsRange, medals }
     letter-spacing: 0.24em;
     color: var(--ink-muted);
     text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .oh__logo--img {
+    padding: 14px;
+  }
+  .oh__logo--img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
   .oh__text {
     display: flex;

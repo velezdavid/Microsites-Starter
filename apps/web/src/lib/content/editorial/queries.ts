@@ -23,7 +23,7 @@ export const EDITORIAL_QUERY = /* groq */ `{
     publishedAt, place, "image": image${image}, layout, photoCredit, keyFacts[]{value, label}, body, readingMinutes,
     "topics": topics[]->{title, "slug": slug.current}, "mentions": mentions[]._ref, sponsored, sponsor{brand, label, note}, seo{title, description, noIndex}
   },
-  "organizers": *[_type == "organizer" && site._ref == $siteId]{_id, name, "slug": slug.current, description, website},
+  "organizers": *[_type == "organizer" && site._ref == $siteId]{_id, name, "slug": slug.current, description, website, "logo": logo${image}},
   "organizations": *[_type == "organization" && site._ref == $siteId && defined(slug.current)] | order(name asc){
     _id, name, "slug": slug.current, "logo": logo${image}, "sector": sector->title, "shortSector": sector->shortTitle,
     city, founded, employees, website, linkedin, description, verified, updatedAt
@@ -137,6 +137,7 @@ export interface RawOrganizer {
   slug: string;
   description?: string;
   website?: string;
+  logo?: RawImage;
 }
 
 export interface RawOrganization {

@@ -1,7 +1,7 @@
 /**
  * Registry blocks: awards, editions and their results (ranking / directory sites).
  */
-import type { ArticleTeaser, EdLink, MedalLevel } from "./types";
+import type { ArticleTeaser, EdImage, EdLink, MedalLevel } from "./types";
 
 /** Search box over the registry (results filtered in the browser). */
 export interface EdRegistrySearch {
@@ -145,6 +145,7 @@ export interface EdOrganizerBlock {
   title: string;
   name: string;
   detail: string;
+  logo?: EdImage;
   siblingsLabel?: string;
   siblings: EdLink[];
 }
@@ -265,6 +266,7 @@ export interface EdOrgHeaderBlock {
   eyebrow: string;
   verified?: string;
   name: string;
+  logo?: EdImage;
   meta: string;
   links: EdLink[];
   medalsTitle: string;

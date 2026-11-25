@@ -117,6 +117,12 @@ function editorialItems(S: StructureBuilder, siteId: string, ids: { settings?: s
           .items([
             listItem(S, siteId, "article", "Todos los artículos"),
             S.listItem()
+              .title("Borradores")
+              .schemaType("article")
+              // `_originalId` keeps the "drafts.*" id even when the Studio's perspective normalizes `_id`
+              // to the published form; it's how a document with unpublished changes is told apart here.
+              .child(siteList(S, siteId, "article", "Borradores", { filter: '_originalId in path("drafts.**")' })),
+            S.listItem()
               .title("Por tipo")
               .child(
                 S.list()

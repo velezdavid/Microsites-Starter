@@ -231,6 +231,7 @@ export function awardPages(c: EditorialContent, siteName: string): ListingPage[]
         title: "Organizador",
         name: org?.name ?? "",
         detail: org?.description ?? "",
+        logo: org?.logo?.asset ? c.image(org.logo, "Logo", 120) : undefined,
         siblingsLabel: "Otros galardones del organizador",
         siblings: c.awardsWithEditions.filter((x) => x.organizer === a.organizer && x.slug !== a.slug).map((x) => ({ label: x.name, href: awardHref(x.slug) })),
       },
