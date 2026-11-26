@@ -49,6 +49,21 @@ const previewRoutes = () => ({
       injectRoute({ pattern: "/api/preview/enable", entrypoint: "./src/preview/enable.ts", prerender: false });
       injectRoute({ pattern: "/api/preview/disable", entrypoint: "./src/preview/disable.ts", prerender: false });
     },
+    /**
+     * The preview site's pages set `X-Robots-Tag: noindex` themselves (SitePage/EditorialSitePage), but a
+     * request that carries the Presentation preview cookie makes Astro treat the response as cookie-dependent
+     * and reset its headers for cache-correctness, dropping that custom one along the way (Cache-Control
+     * still ends up right either way). A `_headers` rule at the Netlify edge is not subject to that reset,
+     * so every response on this site keeps the tag regardless of the cookie. Public builds never get this
+     * file, since it's only written when SANITY_PREVIEW_SITE=true.
+     * @param {{ dir: URL }} options
+     */
+    "astro:build:done": async ({ dir }) => {
+      if (!previewSite) return;
+      const { writeFile } = await import("node:fs/promises");
+      const { fileURLToPath } = await import("node:url");
+      await writeFile(fileURLToPath(new URL("_headers", dir)), "/*\n  X-Robots-Tag: noindex, nofollow\n");
+    },
   },
 });
 

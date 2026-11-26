@@ -162,7 +162,9 @@ export type ArticleBodyNode =
       highlight?: number;
       source?: string;
       more?: EdLink;
-    };
+    }
+  /** Raw embed code (YouTube, X/Twitter, Instagram…), published as given. */
+  | { _type: "embed"; html: string; caption?: string };
 
 export interface EdArticleBodyBlock {
   _type: "edArticleBody";

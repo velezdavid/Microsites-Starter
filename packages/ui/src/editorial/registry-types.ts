@@ -493,7 +493,9 @@ export type EdFeatureNode =
   | { _type: "pullQuote"; text: string; author?: string; role?: string }
   | { _type: "imagePair"; images: { label: string; caption?: string; ratio: string; src?: string; alt?: string }[]; weights: [number, number] }
   | { _type: "recordList"; title: string; more?: EdLink; items: { year: string; award: string; level: MedalLevel; result: string; href?: string }[] }
-  | { _type: "sponsor"; label: string; logo: string; note: string };
+  | { _type: "sponsor"; label: string; logo: string; note: string }
+  /** Raw embed code (YouTube, X/Twitter, Instagram…), published as given. */
+  | { _type: "embed"; html: string; caption?: string };
 
 export interface EdFeatureArticleBlock {
   _type: "edFeatureArticle";

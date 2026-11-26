@@ -168,6 +168,21 @@ export const rankingTable = defineType({
   },
 });
 
+export const embed = defineType({
+  name: "embed",
+  title: "Insertado (HTML)",
+  type: "object",
+  description: "Código de inserción de YouTube, X/Twitter, Instagram u otra plataforma. Se publica tal cual en la página: pega solo código de una fuente de confianza.",
+  fields: [
+    defineField({ name: "html", title: "Código HTML", type: "text", rows: 8, validation: (rule) => rule.required() }),
+    defineField({ name: "caption", title: "Pie (opcional)", type: "string" }),
+  ],
+  preview: {
+    select: { html: "html", caption: "caption" },
+    prepare: ({ html, caption }) => ({ title: caption || "Insertado", subtitle: (html ?? "").replace(/\s+/g, " ").trim().slice(0, 60) }),
+  },
+});
+
 export const recordList = defineType({
   name: "recordList",
   title: "Reconocimientos de una empresa",
@@ -222,6 +237,7 @@ export const articleBody = defineType({
     defineArrayMember({ type: "pullQuote" }),
     defineArrayMember({ type: "rankingTable" }),
     defineArrayMember({ type: "recordList" }),
+    defineArrayMember({ type: "embed" }),
   ],
 });
 
@@ -356,6 +372,7 @@ export const editorialObjectTypes = [
   rankingTableRow,
   rankingTable,
   recordList,
+  embed,
   articleBody,
   simpleText,
   keyFact,
