@@ -85,6 +85,8 @@ export function standardBody(c: EditorialContent, a: Article): ArticleBodyNode[]
           .map((r, i) => ({ position: i + 1, name: `${r.award} ${r.year}`, detail: r.result, href: r.href }));
         return rows.length ? [{ _type: "rankingTable", rows, more: { label: "Ver ficha", href: orgHref(org.slug) } }] : [];
       }
+      case "embed":
+        return n.html ? [{ _type: "embed", html: n.html, caption: n.caption }] : [];
       default:
         return [];
     }
@@ -133,6 +135,8 @@ export function featureBody(c: EditorialContent, a: Article): EdFeatureNode[] {
           .map((r) => ({ year: String(r.year), award: `${r.award} · ${r.category}`, level: r.level, result: r.result, href: r.href }));
         return items.length ? [{ _type: "recordList", title: n.title || "Reconocimientos en el registro", more: { label: "Ver ficha", href: orgHref(org.slug) }, items }] : [];
       }
+      case "embed":
+        return n.html ? [{ _type: "embed", html: n.html, caption: n.caption }] : [];
       default:
         return [];
     }

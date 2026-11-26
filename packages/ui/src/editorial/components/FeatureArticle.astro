@@ -93,6 +93,13 @@ for (const n of body) {
                       })}
                     </div>
                   );
+                case "embed":
+                  return (
+                    <div class="fa__embed">
+                      <div class="fa__embed-frame" set:html={n.html} />
+                      {n.caption && <p class="fa__embed-caption">{n.caption}</p>}
+                    </div>
+                  );
                 case "sponsor":
                   return (
                     <>
@@ -195,6 +202,19 @@ for (const n of body) {
   .fa__quote strong {
     color: var(--ink);
     font-weight: 600;
+  }
+  .fa__embed {
+    margin: 8px 0 32px;
+  }
+  .fa__embed :global(iframe),
+  .fa__embed :global(img),
+  .fa__embed :global(video) {
+    max-width: 100%;
+  }
+  .fa__embed-caption {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--ink-muted);
   }
   .fa__pair {
     padding: 24px var(--gutter) 40px;

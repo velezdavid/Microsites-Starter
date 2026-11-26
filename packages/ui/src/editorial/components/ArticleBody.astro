@@ -70,6 +70,13 @@ const { keyFacts, body, tags } = Astro.props;
                 )}
               </div>
             );
+          case "embed":
+            return (
+              <div class="ab__embed">
+                <div class="ab__embed-frame" set:html={n.html} />
+                {n.caption && <p class="ab__embed-caption">{n.caption}</p>}
+              </div>
+            );
           default:
             return null;
         }
@@ -178,6 +185,19 @@ const { keyFacts, body, tags } = Astro.props;
   }
   .ab :global(.ab__image) {
     margin: 8px 0 32px;
+  }
+  .ab__embed {
+    margin: 8px 0 32px;
+  }
+  .ab__embed :global(iframe),
+  .ab__embed :global(img),
+  .ab__embed :global(video) {
+    max-width: 100%;
+  }
+  .ab__embed-caption {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--ink-muted);
   }
   .ab__table {
     margin: 0 0 32px;
